@@ -42,40 +42,85 @@ namespace DavidFDev.Audio
         /// </summary>
         public bool IsFinished => _source == null || (!_source.isPlaying && !_isPaused);
 
+        /// <summary>
+        ///     Volume of the audio playback [0.0 - 1.0].
+        /// </summary>
         public float Volume
         {
             get => _source.volume;
             set => _source.volume = Mathf.Clamp01(value);
         }
 
+        /// <summary>
+        ///     Pitch of the audio playback [-1.0 - 1.0].
+        /// </summary>
         public float Pitch
         {
             get => _source.pitch;
             set => _source.pitch = Mathf.Clamp(value, -3f, 3f);
         }
 
+        /// <summary>
+        ///     Whether the audio playback should loop.
+        /// </summary>
         public bool Loop
         {
             get => _source.loop;
             set => _source.loop = value;
         }
 
+        /// <summary>
+        ///     Priority of the audio playback [0 - 256].
+        /// </summary>
+        public int Priority
+        {
+            get => _source.priority;
+            set => _source.priority = Mathf.Clamp(value, 0, 256);
+        }
+        
+        /// <summary>
+        ///     Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].
+        /// </summary>
+        public float StereoPan
+        {
+            get => _source.panStereo;
+            set => _source.panStereo = Mathf.Clamp(value, -1f, 1f);
+        }
+
+        /// <summary>
+        ///     Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].
+        /// </summary>
+        public float SpatialBlend
+        {
+            get => _source.spatialBlend;
+            set => _source.spatialBlend = Mathf.Clamp01(value);
+        }
+
+        /// <summary>
+        ///     Position of the audio playback in 3D world-space.
+        /// </summary>
+        public Vector3 Position
+        {
+            get => _source.transform.position;
+            set => _source.transform.position = value;
+        }
+
+        /// <summary>
+        ///     Playback position in seconds.
+        /// </summary>
         public float Time
         {
             get => _source.time;
             set => _source.time = Mathf.Max(0f, value);
         }
 
+        /// <summary>
+        ///     Playback position in PCM samples.
+        /// </summary>
         public int TimeSamples
         {
             get => _source.timeSamples;
             set => _source.timeSamples = Mathf.Max(0, value);
-        }
-
-        public Vector3 Position
-        {
-            get => _source.transform.position;
-            set => _source.transform.position = value;
         }
 
         #endregion

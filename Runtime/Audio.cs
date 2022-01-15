@@ -44,6 +44,9 @@ namespace DavidFDev.Audio
             playback.Volume = 1f;
             playback.Pitch = 1f;
             playback.Loop = false;
+            playback.Priority = 128;
+            playback.StereoPan = 0f;
+            playback.SpatialBlend = 0f;
             playback.Position = Vector3.zero;
             
             source.Play();

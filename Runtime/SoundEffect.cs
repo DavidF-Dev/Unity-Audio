@@ -25,6 +25,15 @@ namespace DavidFDev.Audio
         [field: Space, SerializeField]
         public bool Loop { get; private set; }
 
+        [field: SerializeField, Range(0, 256)]
+        public int Priority { get; private set; } = 128;
+
+        [field: SerializeField, Range(-1f, 1f)]
+        public float StereoPan { get; private set; }
+
+        [field: SerializeField, Range(0f, 1f)]
+        public float SpatialBlend { get; private set; }
+
         #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿//#define HIDE_IN_EDITOR
+#define DEBUG_AUDIO
 
 using System;
 using System.Collections.Generic;
@@ -25,18 +26,18 @@ namespace DavidFDev.Audio
 
         #region Static methods
 
-        public static Playback Play(AudioClip sfx)
+        public static Playback Play(AudioClip clip)
         {
-            if (sfx == null)
+            if (clip == null)
             {
-                throw new ArgumentNullException(nameof(sfx));
+                throw new ArgumentNullException(nameof(clip));
             }
             
             AudioSource source = GetAudioSource();
-            source.clip = sfx;
+            source.clip = clip;
 
 #if !HIDE_IN_EDITOR
-            source.gameObject.name = $"Audio Source ({sfx.name})";
+            source.gameObject.name = $"Audio Source ({clip.name})";
 #endif
 
             // Set defaults
@@ -51,12 +52,16 @@ namespace DavidFDev.Audio
             
             source.Play();
 
+#if DEBUG_AUDIO
+            Debug.Log($"Started audio playback for {clip.name}.");
+#endif
+
             return playback;
         }
 
-        public static Playback Play(AudioClip sfx, Vector3 position)
+        public static Playback Play(AudioClip clip, Vector3 position)
         {
-            Playback playback = Play(sfx);
+            Playback playback = Play(clip);
             playback.Position = position;
             return playback;
         }
@@ -123,6 +128,10 @@ namespace DavidFDev.Audio
                     UnityEngine.Object.Destroy(_available.Pop());
                 }
 
+#if DEBUG_AUDIO
+                Debug.Log("Destroyed all audio sources.");
+#endif
+
                 return;
             }
 
@@ -134,6 +143,10 @@ namespace DavidFDev.Audio
             }
 
             _current.Clear();
+
+#if DEBUG_AUDIO
+            Debug.Log("Freed all audio sources back into the pool.");
+#endif
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -147,6 +160,10 @@ namespace DavidFDev.Audio
 #if HIDE_IN_EDITOR
             _parent.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy; 
 #endif
+
+#if DEBUG_AUDIO
+            Debug.Log("Created audio pool game object.");
+#endif
         }
 
         private static AudioSource GetAudioSource()
@@ -157,6 +174,10 @@ namespace DavidFDev.Audio
             if (_available.Any())
             {
                 source = _available.Pop();
+
+#if DEBUG_AUDIO
+                Debug.Log("Retrieved available audio source from the pool.");
+#endif
             }
 
             // Otherwise, search for a finished audio source
@@ -165,6 +186,10 @@ namespace DavidFDev.Audio
                 // Get the source ready for re-use
                 _current[source].Dispose();
                 _current.Remove(source);
+
+#if DEBUG_AUDIO
+                Debug.Log("Retrieved a previously finished audio source.");
+#endif
             }
 
             // Otherwise, create a new audio source
@@ -173,6 +198,10 @@ namespace DavidFDev.Audio
                 source = new GameObject("Audio Source").AddComponent<AudioSource>();
                 source.transform.SetParent(_parent);
                 source.playOnAwake = false;
+
+#if DEBUG_AUDIO
+                Debug.Log("Created a new audio source.");
+#endif
             }
 
             _current.Add(source, new Playback(source));
@@ -186,6 +215,10 @@ namespace DavidFDev.Audio
             // Check if the clip has been cached for easy retrieval
             if (_cachedClips.TryGetValue(path, out AudioClip clip))
             {
+#if DEBUG_AUDIO
+                Debug.Log("Retrieved audio clip from cached resources.");
+#endif
+
                 return clip;
             }
 
@@ -196,6 +229,10 @@ namespace DavidFDev.Audio
             {
                 throw new Exception($"Failed to load AudioClip at {path}");
             }
+
+#if DEBUG_AUDIO
+            Debug.Log("Loaded audio clip from resources.");
+#endif
 
             // Cache
             _cachedClips.Add(path, clip);
@@ -208,6 +245,10 @@ namespace DavidFDev.Audio
             // Check if the asset has been cached for easy retrieval
             if (_cachedAssets.TryGetValue(path, out SoundEffect asset))
             {
+#if DEBUG_AUDIO
+                Debug.Log("Retrieved asset from cached resources.");
+#endif
+
                 return asset;
             }
 
@@ -218,6 +259,10 @@ namespace DavidFDev.Audio
             {
                 throw new Exception($"Failed to load {nameof(SoundEffect)} at {path}");
             }
+
+#if DEBUG_AUDIO
+            Debug.Log("Loaded asset from resources.");
+#endif
 
             // Cache
             _cachedAssets.Add(path, asset);

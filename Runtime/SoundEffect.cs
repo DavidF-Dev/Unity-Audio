@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Audio;
 
 namespace DavidFDev.Audio
 {
@@ -9,6 +10,9 @@ namespace DavidFDev.Audio
 
         [field: SerializeField]
         public AudioClip[] Clips { get; private set; }
+
+        [field: SerializeField]
+        public AudioMixerGroup Output { get; private set; }
 
         [field: Header("Volume"), SerializeField, Range(0f, 1f)]
         public float MinVolume { get; private set; } = 1f;

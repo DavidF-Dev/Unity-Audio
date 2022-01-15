@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Audio;
 
 namespace DavidFDev.Audio
 {
@@ -41,6 +42,15 @@ namespace DavidFDev.Audio
         ///     Whether the audio playback is finished and can no longer be used.
         /// </summary>
         public bool IsFinished => _source == null || (!_source.isPlaying && !_isPaused);
+
+        /// <summary>
+        ///     Group that the audio playback should output to.
+        /// </summary>
+        public AudioMixerGroup Output
+        {
+            get => _source.outputAudioMixerGroup;
+            set => _source.outputAudioMixerGroup = value;
+        }
 
         /// <summary>
         ///     Volume of the audio playback [0.0 - 1.0].

@@ -42,6 +42,7 @@ namespace DavidFDev.Audio
 
             // Set defaults
             Playback playback = _current[source];
+            playback.Output = null;
             playback.Volume = 1f;
             playback.Pitch = 1f;
             playback.Loop = false;
@@ -84,6 +85,7 @@ namespace DavidFDev.Audio
             }
 
             Playback playback = Play(asset.Clips[UnityEngine.Random.Range(0, asset.Clips.Length)]);
+            playback.Output = asset.Output;
             playback.Volume = UnityEngine.Random.Range(asset.MinVolume, asset.MaxVolume);
             playback.Pitch = UnityEngine.Random.Range(asset.MinPitch, asset.MaxPitch);
             playback.Loop = asset.Loop;

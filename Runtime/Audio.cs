@@ -1,5 +1,8 @@
 ﻿//#define HIDE_IN_EDITOR
 #define DEBUG_AUDIO
+// File: Audio.cs
+// Purpose: Static class for playing audio (clips, sound effects and music).
+// Created by: DavidFDev
 
 using System;
 using System.Collections.Generic;
@@ -9,6 +12,9 @@ using UnityEngine.Audio;
 
 namespace DavidFDev.Audio
 {
+    /// <summary>
+    ///     Play audio clips, sound effects and music.
+    /// </summary>
     public static class Audio
     {
         #region Static fields
@@ -73,7 +79,7 @@ namespace DavidFDev.Audio
                 throw new ArgumentNullException(nameof(asset));
             }
 
-            Playback playback = Play(asset.Clips[UnityEngine.Random.Range(0, asset.Clips.Length)], position, asset.Output);
+            Playback playback = Play(asset.GetClipAtRandom(), position, asset.Output);
             playback.Volume = UnityEngine.Random.Range(asset.MinVolume, asset.MaxVolume);
             playback.Pitch = UnityEngine.Random.Range(asset.MinPitch, asset.MaxPitch);
             playback.Loop = asset.Loop;

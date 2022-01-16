@@ -1,8 +1,15 @@
-﻿using UnityEngine;
+﻿// File: Playback.cs
+// Purpose: Control audio playback, abstracting the audio source component.
+// Created by: DavidFDev
+
+using UnityEngine;
 using UnityEngine.Audio;
 
 namespace DavidFDev.Audio
 {
+    /// <summary>
+    ///     Control audio playback properties (similar to AudioSource).
+    /// </summary>
     public sealed class Playback
     {
         #region Fields

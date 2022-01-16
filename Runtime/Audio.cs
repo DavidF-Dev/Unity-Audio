@@ -50,12 +50,12 @@ namespace DavidFDev.Audio
             // Set defaults
             Playback playback = _current[source];
             playback.Output = output;
-            playback.Volume = 1f;
-            playback.Pitch = 1f;
+            playback.Volume = PlaybackDefaults.Volume;
+            playback.Pitch = PlaybackDefaults.Pitch;
             playback.Loop = false;
             playback.Priority = 128;
             playback.StereoPan = 0f;
-            playback.SpatialBlend = 0f;
+            playback.SpatialBlend = PlaybackDefaults.SpatialBlend;
             playback.Position = position;
             
             source.Play();
@@ -83,6 +83,9 @@ namespace DavidFDev.Audio
             playback.Volume = UnityEngine.Random.Range(asset.MinVolume, asset.MaxVolume);
             playback.Pitch = UnityEngine.Random.Range(asset.MinPitch, asset.MaxPitch);
             playback.Loop = asset.Loop;
+            playback.Priority = asset.Priority;
+            playback.StereoPan = asset.StereoPan;
+            playback.SpatialBlend = asset.SpatialBlend;
             return playback;
         }
 
@@ -252,6 +255,57 @@ namespace DavidFDev.Audio
             _cachedAssets.Add(path, asset);
 
             return asset;
+        }
+
+        #endregion
+
+        #region Nested types
+
+        /// <summary>
+        ///     Default values used for audio playback.
+        /// </summary>
+        public static class PlaybackDefaults
+        {
+            #region Static fields
+
+            private static float _volume = 1f;
+
+            private static float _pitch = 1f;
+
+            private static float _spatialBlend;
+
+            #endregion
+
+            #region Static properties
+
+            /// <summary>
+            ///     Volume of the audio playback [0.0 - 1.0].
+            /// </summary>
+            public static float Volume
+            {
+                get => _volume;
+                set => _volume = Mathf.Clamp01(value);
+            }
+
+            /// <summary>
+            ///     Pitch of the audio playback [-3.0 - 3.0].
+            /// </summary>
+            public static float Pitch
+            {
+                get => _pitch;
+                set => _pitch = Mathf.Clamp(value, -3f, 3f);
+            }
+
+            /// <summary>
+            ///     Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].
+            /// </summary>
+            public static float SpatialBlend
+            {
+                get => _spatialBlend;
+                set => _spatialBlend = Mathf.Clamp01(value);
+            }
+
+            #endregion
         }
 
         #endregion

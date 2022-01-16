@@ -69,7 +69,7 @@ namespace DavidFDev.Audio
         }
 
         /// <summary>
-        ///     Pitch of the audio playback [-1.0 - 1.0].
+        ///     Pitch of the audio playback [-3.0 - 3.0].
         /// </summary>
         public float Pitch
         {

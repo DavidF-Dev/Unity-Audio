@@ -144,6 +144,9 @@ namespace DavidFDev.Audio
 
         #region Methods
 
+        /// <summary>
+        ///     Pauses playback.
+        /// </summary>
         public void Pause()
         {
             IsPaused = true;
@@ -154,6 +157,9 @@ namespace DavidFDev.Audio
             }
         }
 
+        /// <summary>
+        ///     Unpauses playback.
+        /// </summary>
         public void Unpause()
         {
             IsPaused = false;
@@ -164,6 +170,9 @@ namespace DavidFDev.Audio
             }
         }
 
+        /// <summary>
+        ///     Forcefully finish the playback.
+        /// </summary>
         public void ForceFinish()
         {
             _source.Stop();

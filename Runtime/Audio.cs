@@ -100,6 +100,10 @@ namespace DavidFDev.Audio
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        ///     Stop all audio playbacks, freeing up resources.
+        /// </summary>
+        /// <param name="destroyObjects">Destroy pooled game objects.</param>
         public static void StopAllAudio(bool destroyObjects = false)
         {
             if (destroyObjects)
@@ -136,6 +140,15 @@ namespace DavidFDev.Audio
 #if DEBUG_AUDIO
             Debug.Log("Freed all audio sources back into the pool.");
 #endif
+        }
+
+        /// <summary>
+        ///     Clear cached audio clips and sound effect assets, freeing up memory.
+        /// </summary>
+        public static void ClearCache()
+        {
+            _cachedClips.Clear();
+            _cachedAssets.Clear();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

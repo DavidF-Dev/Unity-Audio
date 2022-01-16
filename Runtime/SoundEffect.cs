@@ -60,7 +60,11 @@ namespace DavidFDev.Audio
 
         #region Methods
 
-        public void Play(Vector3 position)
+        /// <summary>
+        ///     Play the sound effect.
+        /// </summary>
+        /// <param name="position">Position of the audio playback in 3D world-space.</param>
+        public void Play(Vector3 position = default)
         {
             Audio.PlaySfx(this, position);
         }

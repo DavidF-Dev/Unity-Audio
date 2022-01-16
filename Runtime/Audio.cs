@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace DavidFDev.Audio
 {
@@ -26,7 +27,7 @@ namespace DavidFDev.Audio
 
         #region Static methods
 
-        public static Playback Play(AudioClip clip)
+        public static Playback Play(AudioClip clip, Vector3 position = default, AudioMixerGroup output = null)
         {
             if (clip == null)
             {
@@ -42,69 +43,44 @@ namespace DavidFDev.Audio
 
             // Set defaults
             Playback playback = _current[source];
-            playback.Output = null;
+            playback.Output = output;
             playback.Volume = 1f;
             playback.Pitch = 1f;
             playback.Loop = false;
             playback.Priority = 128;
             playback.StereoPan = 0f;
             playback.SpatialBlend = 0f;
-            playback.Position = Vector3.zero;
+            playback.Position = position;
             
             source.Play();
 
 #if DEBUG_AUDIO
-            Debug.Log($"Started audio playback for {clip.name}.");
+            Debug.Log($"Started audio playback for {clip.name} at {playback.Position}{(output != null ? $" [{output.name}]" : "")}.");
 #endif
 
             return playback;
         }
 
-        public static Playback Play(AudioClip clip, Vector3 position)
+        public static Playback Play(string path, Vector3 position = default, AudioMixerGroup output = null)
         {
-            Playback playback = Play(clip);
-            playback.Position = position;
-            return playback;
+            return Play(TryGetClipFromResource(path), position, output);
         }
 
-        public static Playback Play(string path)
-        {
-            return Play(TryGetClipFromResource(path));
-        }
-
-        public static Playback Play(string path, Vector3 position)
-        {
-            return Play(TryGetClipFromResource(path), position);
-        }
-
-        public static Playback PlaySfx(SoundEffect asset)
+        public static Playback PlaySfx(SoundEffect asset, Vector3 position = default)
         {
             if (asset == null)
             {
                 throw new ArgumentNullException(nameof(asset));
             }
 
-            Playback playback = Play(asset.Clips[UnityEngine.Random.Range(0, asset.Clips.Length)]);
-            playback.Output = asset.Output;
+            Playback playback = Play(asset.Clips[UnityEngine.Random.Range(0, asset.Clips.Length)], position, asset.Output);
             playback.Volume = UnityEngine.Random.Range(asset.MinVolume, asset.MaxVolume);
             playback.Pitch = UnityEngine.Random.Range(asset.MinPitch, asset.MaxPitch);
             playback.Loop = asset.Loop;
             return playback;
         }
 
-        public static Playback PlaySfx(SoundEffect asset, Vector3 position)
-        {
-            Playback playback = PlaySfx(asset);
-            playback.Position = position;
-            return playback;
-        }
-
-        public static Playback PlaySfx(string path)
-        {
-            return PlaySfx(TryGetAssetFromResource(path));
-        }
-
-        public static Playback PlaySfx(string path, Vector3 position)
+        public static Playback PlaySfx(string path, Vector3 position = default)
         {
             return PlaySfx(TryGetAssetFromResource(path), position);
         }

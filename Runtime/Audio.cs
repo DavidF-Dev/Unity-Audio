@@ -95,9 +95,14 @@ namespace DavidFDev.Audio
             return PlaySfx(TryGetAssetFromResource(path), position);
         }
 
-        public static Playback PlayMusic(AudioClip music, float fadeTime = 0.25f, AudioMixerGroup output = null)
+        public static AudioSource PlayMusic(AudioClip music, float fadeTime = 0.25f, AudioMixerGroup output = null)
         {
             throw new NotImplementedException();
+        }
+
+        public static AudioSource PlayMusic(string path, float fadeTime = 0.25f, AudioMixerGroup output = null)
+        {
+            return PlayMusic(TryGetClipFromResource(path), fadeTime, output);
         }
 
         /// <summary>
@@ -152,9 +157,7 @@ namespace DavidFDev.Audio
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-#pragma warning disable IDE0051
         private static void Init()
-#pragma warning restore IDE0051
         {
             // Create the object that will hold the audio sources
             _parent = new GameObject("Audio Pool").transform;

@@ -1,5 +1,5 @@
 # Audio Solution for Unity
-This asset provides XYZ.
+This asset provides an easy solution for **playing audio clips, sound effects and music** without needing to worry about managing Audio Sources.
 
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.

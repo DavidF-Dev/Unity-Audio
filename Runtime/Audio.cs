@@ -126,6 +126,7 @@ namespace DavidFDev.Audio
             // Release all the in-use sources back into the pool
             foreach (AudioSource source in _current.Keys)
             {
+                _current[source].ForceFinish();
                 _current[source].Dispose();
                 _available.Push(source);
             }

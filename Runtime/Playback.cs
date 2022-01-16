@@ -147,11 +147,21 @@ namespace DavidFDev.Audio
         public void Pause()
         {
             IsPaused = true;
+
+            if (IsPaused)
+            {
+                _source.Pause();
+            }
         }
 
         public void Unpause()
         {
             IsPaused = false;
+
+            if (!IsPaused)
+            {
+                _source.UnPause();
+            }
         }
 
         public void ForceFinish()

@@ -1,8 +1,9 @@
-﻿//#define HIDE_IN_EDITOR
-#define DEBUG_AUDIO
-// File: Audio.cs
+﻿// File: Audio.cs
 // Purpose: Static class for playing audio (clips, sound effects and music).
 // Created by: DavidFDev
+
+//#define HIDE_IN_EDITOR
+#define DEBUG_AUDIO
 
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ namespace DavidFDev.Audio
             {
                 throw new ArgumentNullException(nameof(clip));
             }
-            
+
             AudioSource source = GetAudioSource();
             source.clip = clip;
 
@@ -57,7 +58,7 @@ namespace DavidFDev.Audio
             playback.StereoPan = 0f;
             playback.SpatialBlend = PlaybackDefaults.SpatialBlend;
             playback.Position = position;
-            
+
             source.Play();
 
 #if DEBUG_AUDIO
@@ -94,23 +95,23 @@ namespace DavidFDev.Audio
             return PlaySfx(TryGetAssetFromResource(path), position);
         }
 
-        public static Playback PlayMusic(AudioClip music)
+        public static Playback PlayMusic(AudioClip music, float fadeTime = 0.25f, AudioMixerGroup output = null)
         {
             throw new NotImplementedException();
         }
 
         public static void StopAllAudio(bool destroyObjects = false)
         {
-            if(destroyObjects)
+            if (destroyObjects)
             {
-                foreach(AudioSource source in _current.Keys)
+                foreach (AudioSource source in _current.Keys)
                 {
                     UnityEngine.Object.Destroy(source.gameObject);
                 }
 
                 _current.Clear();
 
-                while(_available.Any())
+                while (_available.Any())
                 {
                     UnityEngine.Object.Destroy(_available.Pop());
                 }

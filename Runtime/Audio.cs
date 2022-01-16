@@ -34,6 +34,13 @@ namespace DavidFDev.Audio
 
         #region Static methods
 
+        /// <summary>
+        ///     Play an audio clip.
+        /// </summary>
+        /// <param name="clip">Audio clip to play.</param>
+        /// <param name="position">Position of the audio playback in 3D world-space.</param>
+        /// <param name="output">Group that the audio playback should output to.</param>
+        /// <returns>Playback instance for controlling the audio.</returns>
         public static Playback Play(AudioClip clip, Vector3 position = default, AudioMixerGroup output = null)
         {
             if (clip == null)
@@ -68,11 +75,24 @@ namespace DavidFDev.Audio
             return playback;
         }
 
+        /// <summary>
+        ///     Play an audio clip loaded from a resource.
+        /// </summary>
+        /// <param name="path">Path to the audio clip to play.</param>
+        /// <param name="position">Position of the audio playback in 3D world-space.</param>
+        /// <param name="output">Group that the audio playback should output to.</param>
+        /// <returns>Playback instance for controlling the audio.</returns>
         public static Playback Play(string path, Vector3 position = default, AudioMixerGroup output = null)
         {
             return Play(TryGetClipFromResource(path), position, output);
         }
 
+        /// <summary>
+        ///     Play a sound effect.
+        /// </summary>
+        /// <param name="asset">Sound effect to play.</param>
+        /// <param name="position">Position of the audio playback in 3D world-space.</param>
+        /// <returns>Playback instance for controlling the audio.</returns>
         public static Playback PlaySfx(SoundEffect asset, Vector3 position = default)
         {
             if (asset == null)
@@ -90,6 +110,12 @@ namespace DavidFDev.Audio
             return playback;
         }
 
+        /// <summary>
+        ///     Play a sound effect loaded from a resource.
+        /// </summary>
+        /// <param name="path">Path to the sound effect to play.</param>
+        /// <param name="position">Position of the audio playback in 3D world-space.</param>
+        /// <returns>Playback instance for controlling the audio.</returns>
         public static Playback PlaySfx(string path, Vector3 position = default)
         {
             return PlaySfx(TryGetAssetFromResource(path), position);

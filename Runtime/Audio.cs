@@ -301,6 +301,22 @@ namespace DavidFDev.Audio
             _cachedAssets.Clear();
         }
 
+        /// <summary>
+        ///     Get an attenuation (volume) scaled logarithmically.
+        ///     Use this instead of a linear scale - decibels do not scale linearly!
+        /// </summary>
+        /// <param name="volume01">
+        ///     0.0 returns -80.0db (practically silent).
+        /// <para>    0.5 returns approximately -14.0db (half volume).</para>
+        /// <para>    1.0 returns 0.0db (full volume - no gain).</para>
+        /// </param>
+        /// <returns>Attenuation (volume) in decibals.</returns>
+        public static float GetAttenuation(float volume01)
+        {
+            volume01 = Mathf.Clamp01(volume01);
+            return volume01 == 0f ? -80f : (Mathf.Log(volume01) * 20f);
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {

@@ -193,7 +193,7 @@ namespace DavidFDev.Audio
                     _mono.StopCoroutine(_musicFadeOut);
                 }
 
-                _musicFadeOut = _mono.StartCoroutine(SimpleLerp(MusicPlayback.Volume, 0f, fadeOut, Mathf.Lerp, x => _musicFader.volume = x, () => { _musicFadeOut = null; _musicFader.clip = null; }));
+                _musicFadeOut = _mono.StartCoroutine(SimpleLerp(_musicPlayback.volume, 0f, fadeOut, Mathf.Lerp, x => _musicFader.volume = x, () => { _musicFadeOut = null; _musicFader.clip = null; }));
 
 #if DEBUG_AUDIO
                 Debug.Log($"Began fading out old music, {GetAudioClipName(_musicFader)}, over {fadeOut} seconds.");

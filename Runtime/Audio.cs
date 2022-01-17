@@ -155,6 +155,7 @@ namespace DavidFDev.Audio
 
         /// <summary>
         ///     Play a music track. If a music track is already playing, it will be faded out.
+        ///     <para>Note: .mp3 files are known to cause popping sounds in Unity under certain circumstances.</para>
         /// </summary>
         /// <param name="music">Music to play.</param>
         /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
@@ -241,6 +242,7 @@ namespace DavidFDev.Audio
 
         /// <summary>
         ///     Play a music track loaded from a resource. If a music track is already playing, it will be faded out.
+        ///     <para>Note: .mp3 files are known to cause popping sounds in Unity under certain circumstances.</para>
         /// </summary>
         /// <param name="path">Path to the music to play.</param>
         /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
@@ -329,8 +331,8 @@ namespace DavidFDev.Audio
         /// </summary>
         /// <param name="volume01">
         ///     0.0 returns -80.0db (practically silent).
-        /// <para>    0.5 returns approximately -14.0db (half volume).</para>
-        /// <para>    1.0 returns 0.0db (full volume - no gain).</para>
+        ///     <para>0.5 returns approximately -14.0db (half volume).</para>
+        ///     <para>1.0 returns 0.0db (full volume - no gain).</para>
         /// </param>
         /// <returns>Attenuation (volume) in decibals.</returns>
         public static float GetAttenuation(float volume01)

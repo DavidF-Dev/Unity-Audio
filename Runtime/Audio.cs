@@ -6,6 +6,7 @@
 #define DEBUG_AUDIO
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,13 +15,15 @@ using UnityEngine.Audio;
 namespace DavidFDev.Audio
 {
     /// <summary>
-    ///     Play audio clips, sound effects and music.
+    ///     Play audio clips, sound effects and music. Also provides other helpful audio methods.
     /// </summary>
     public static class Audio
     {
         #region Static fields
 
         private static Transform _parent;
+
+        private static MonoBehaviour _mono;
 
         private static readonly Dictionary<AudioSource, Playback> _current = new Dictionary<AudioSource, Playback>();
 
@@ -29,6 +32,14 @@ namespace DavidFDev.Audio
         private static readonly Dictionary<string, AudioClip> _cachedClips = new Dictionary<string, AudioClip>();
 
         private static readonly Dictionary<string, SoundEffect> _cachedAssets = new Dictionary<string, SoundEffect>();
+
+        private static AudioSource _musicPlayback;
+
+        private static AudioSource _musicFader;
+
+        private static Coroutine _musicFadeIn;
+
+        private static Coroutine _musicFadeOut;
 
         #endregion
 
@@ -59,6 +70,7 @@ namespace DavidFDev.Audio
             Playback playback = _current[source];
             playback.Output = output;
             playback.Volume = PlaybackDefaults.Volume;
+            playback.IsMuted = false;
             playback.Pitch = PlaybackDefaults.Pitch;
             playback.Loop = false;
             playback.Priority = 128;
@@ -121,22 +133,129 @@ namespace DavidFDev.Audio
             return PlaySfx(TryGetAssetFromResource(path), position);
         }
 
-        public static AudioSource PlayMusic(AudioClip music, float fadeTime = 0.25f, AudioMixerGroup output = null)
+        /// <summary>
+        ///     Play a music track. If a music track is already playing, it will be faded out.
+        /// </summary>
+        /// <param name="music">Music to play.</param>
+        /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
+        /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
+        public static void PlayMusic(AudioClip music, float fadeIn = 1f, float fadeOut = 0.75f)
         {
-            throw new NotImplementedException();
+            static string GetAudioClipName(AudioSource source)
+            {
+                return source.clip == null ? "none" : source.clip.name;
+            }
+
+            // Cancel if the new music is the same as the current music
+            if (music == _musicPlayback.clip)
+            {
+#if DEBUG_AUDIO
+                Debug.Log("Cancelled music change as the new music is the same as the current music.");
+#endif
+
+                return;
+            }
+
+            // Start fading out the old music playback
+            if (fadeOut > 0f && _musicPlayback.clip != null)
+            {
+                _musicFader.Stop();
+                _musicFader.clip = _musicPlayback.clip;
+                _musicFader.outputAudioMixerGroup = _musicPlayback.outputAudioMixerGroup;
+                _musicFader.Play();
+                _musicFader.timeSamples = _musicPlayback.timeSamples;
+
+                // If there is fading happening already, forcefully stop it
+                if (_musicFadeOut != null)
+                {
+                    _mono.StopCoroutine(_musicFadeOut);
+                }
+
+                _musicFadeOut = _mono.StartCoroutine(SimpleLerp(MusicSettings.Volume, 0f, fadeOut, Mathf.Lerp, x => _musicFader.volume = x, () => { _musicFadeOut = null; _musicFader.clip = null; }));
+
+#if DEBUG_AUDIO
+                Debug.Log($"Began fading out old music, {GetAudioClipName(_musicFader)}, over {fadeOut} seconds.");
+#endif
+            }
+
+            // Stop the music playback if no clip is provided
+            if (music == null)
+            {
+                _musicPlayback.Stop();
+                _musicPlayback.clip = null;
+
+#if DEBUG_AUDIO
+                Debug.Log($"Music changed from {GetAudioClipName(_musicFader)} to {GetAudioClipName(_musicPlayback)}.");
+#endif
+
+                return;
+            }
+
+            // Start the new music playback
+            _musicPlayback.Stop();
+            _musicPlayback.clip = music;
+            _musicPlayback.Play();
+
+#if DEBUG_AUDIO
+            Debug.Log($"Music changed from {GetAudioClipName(_musicFader)} to {GetAudioClipName(_musicPlayback)}.");
+#endif
+
+            // Start fading in the new music playback
+            if (fadeIn > 0f)
+            {
+                // If there is fading happening already, forcefully stop it
+                if (_musicFadeIn != null)
+                {
+                    _mono.StopCoroutine(_musicFadeIn);
+                }
+
+                _musicFadeIn = _mono.StartCoroutine(SimpleLerp(0f, MusicSettings.Volume, fadeIn, Mathf.Lerp, x => _musicPlayback.volume = x, () => _musicFadeIn = null));
+
+#if DEBUG_AUDIO
+                Debug.Log($"Began fading in new music, {GetAudioClipName(_musicPlayback)}, over {fadeIn} seconds.");
+#endif
+            }
         }
 
-        public static AudioSource PlayMusic(string path, float fadeTime = 0.25f, AudioMixerGroup output = null)
+        /// <summary>
+        ///     Play a music track loaded from a resource. If a music track is already playing, it will be faded out.
+        /// </summary>
+        /// <param name="path">Path to the music to play.</param>
+        /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
+        /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
+        public static void PlayMusic(string path, float fadeIn = 1f, float fadeOut = 0.75f)
         {
-            return PlayMusic(TryGetClipFromResource(path), fadeTime, output);
+            AudioClip music = TryGetClipFromResource(path);
+
+            if (music == null)
+            {
+                throw new Exception($"Failed to load the music track at {path}.");
+            }
+
+            PlayMusic(music, fadeIn, fadeOut);
+        }
+
+        /// <summary>
+        ///     Stop music playback.
+        /// </summary>
+        /// <param name="fadeOut">Duration, in seconds, that the music should take to fade out.</param>
+        public static void StopMusic(float fadeOut = 0.75f)
+        {
+            PlayMusic((AudioClip)null, 0f, fadeOut);
         }
 
         /// <summary>
         ///     Stop all audio playbacks, freeing up resources.
         /// </summary>
+        /// <param name="stopMusic">Stop music playback.</param>
         /// <param name="destroyObjects">Destroy pooled game objects.</param>
-        public static void StopAllAudio(bool destroyObjects = false)
+        public static void StopAllAudio(bool stopMusic = false, bool destroyObjects = false)
         {
+            if (stopMusic)
+            {
+                StopMusic(0f);
+            }
+
             if (destroyObjects)
             {
                 foreach (AudioSource source in _current.Keys)
@@ -187,6 +306,7 @@ namespace DavidFDev.Audio
         {
             // Create the object that will hold the audio sources
             _parent = new GameObject("Audio Pool").transform;
+            _mono = _parent.gameObject.AddComponent<DummyMono>();
             UnityEngine.Object.DontDestroyOnLoad(_parent.gameObject);
 #if HIDE_IN_EDITOR
             _parent.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy; 
@@ -195,6 +315,18 @@ namespace DavidFDev.Audio
 #if DEBUG_AUDIO
             Debug.Log("Created audio pool game object.");
 #endif
+
+            // Create audio sources for music playback and fading
+            {
+                _musicPlayback = new GameObject("Music Playback").AddComponent<AudioSource>();
+                _musicPlayback.gameObject.transform.SetParent(_parent);
+                _musicPlayback.loop = true;
+                _musicPlayback.spatialBlend = 0f;
+
+                _musicFader = new GameObject("Music Fader").AddComponent<AudioSource>();
+                _musicFader.gameObject.transform.SetParent(_parent);
+                _musicFader.spatialBlend = 0f;
+            }
         }
 
         private static AudioSource GetAudioSource()
@@ -301,6 +433,18 @@ namespace DavidFDev.Audio
             return asset;
         }
 
+        private static IEnumerator SimpleLerp<T>(T start, T end, float duration, Func<T, T, float, T> lerpFunction, Action<T> onUpdate, Action onComplete)
+        {
+            for (float t = 0; t <= duration; t += Time.deltaTime)
+            {
+                onUpdate(lerpFunction(start, end, t / duration));
+                yield return null;
+            }
+
+            onUpdate(end);
+            onComplete?.Invoke();
+        }
+
         #endregion
 
         #region Nested types
@@ -350,6 +494,105 @@ namespace DavidFDev.Audio
             }
 
             #endregion
+        }
+
+        /// <summary>
+        ///     Settings for manipulating the music playback.
+        /// </summary>
+        public static class MusicSettings
+        {
+            #region Static fields
+
+            private static float _targetVolume = 1f;
+
+            #endregion
+
+            #region Static properties
+
+            /// <summary>
+            ///     Current audio clip used by the music playback.
+            /// </summary>
+            public static AudioClip Music
+            {
+                get => _musicPlayback.clip;
+            }
+            
+            /// <summary>
+            ///     Whether the music playback is currently fading between two tracks.
+            /// </summary>
+            public static bool IsFading
+            {
+                get => _musicFadeIn != null || _musicFadeOut != null;
+            }
+
+            /// <summary>
+            ///     Group that the music playback should output to.
+            /// </summary>
+            public static AudioMixerGroup Output
+            {
+                get => _musicPlayback.outputAudioMixerGroup;
+                set => _musicPlayback.outputAudioMixerGroup = value;
+            }
+
+            /// <summary>
+            ///     Volume of the music playback outside of crossfade transitions [0.0 - 1.0].
+            /// </summary>
+            public static float Volume
+            {
+                get => _targetVolume;
+                set
+                {
+                    if (IsFading)
+                    {
+                        return;
+                    }
+
+                    _musicPlayback.volume = _musicFader.volume = _targetVolume = Mathf.Clamp01(value);
+                }
+            }
+
+            /// <summary>
+            ///     Whether the music playback is muted.
+            /// </summary>
+            public static bool IsMuted
+            {
+                get => _musicPlayback.mute;
+                set => _musicPlayback.mute = _musicFader.mute = value;
+            }
+
+            /// <summary>
+            ///     Priority of the music playback [0 - 256].
+            /// </summary>
+            public static int Priority
+            {
+                get => _musicPlayback.priority;
+                set => _musicPlayback.priority = _musicFader.priority = Mathf.Clamp(value, 0, 256);
+            }
+
+            /// <summary>
+            ///     Music playback position in seconds.
+            /// </summary>
+            public static float Time
+            {
+                get => _musicPlayback.time;
+                set => _musicPlayback.time = Mathf.Max(0f, value);
+            }
+
+            /// <summary>
+            ///     Music playback position in PCM samples.
+            /// </summary>
+            public static int TimeSamples
+            {
+                get => _musicPlayback.timeSamples;
+                set => _musicPlayback.timeSamples = Mathf.Max(0, value);
+            }
+
+            #endregion
+        }
+
+        [AddComponentMenu("")]
+        private sealed class DummyMono : MonoBehaviour 
+        {
         }
 
         #endregion

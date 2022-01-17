@@ -69,6 +69,15 @@ namespace DavidFDev.Audio
         }
 
         /// <summary>
+        ///     Whether the audio playback is muted.
+        /// </summary>
+        public bool IsMuted
+        {
+            get => _source.mute;
+            set => _source.mute = value;
+        }
+
+        /// <summary>
         ///     Pitch of the audio playback [-3.0 - 3.0].
         /// </summary>
         public float Pitch

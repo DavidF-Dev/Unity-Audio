@@ -2,6 +2,7 @@
 // Purpose: Control audio playback, abstracting the audio source component.
 // Created by: DavidFDev
 
+using System.Diagnostics.Contracts;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -188,6 +189,7 @@ namespace DavidFDev.Audio
             IsPaused = false;
         }
 
+        [Pure]
         public override string ToString()
         {
             if (IsFinished)

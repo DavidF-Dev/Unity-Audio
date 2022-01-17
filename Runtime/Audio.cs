@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -48,6 +49,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Current audio clip used by the music playback.
         /// </summary>
+        [Pure]
         public static AudioClip CurrentMusic
         {
             get => _musicPlayback.clip;
@@ -56,6 +58,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Whether the music playback is currently fading between two tracks.
         /// </summary>
+        [Pure]
         public static bool IsMusicFading
         {
             get => _musicFadeIn != null || _musicFadeOut != null;
@@ -335,6 +338,7 @@ namespace DavidFDev.Audio
         ///     <para>1.0 returns 0.0db (full volume - no gain).</para>
         /// </param>
         /// <returns>Attenuation (volume) in decibals.</returns>
+        [Pure]
         public static float GetAttenuation(float volume01)
         {
             volume01 = Mathf.Clamp01(volume01);

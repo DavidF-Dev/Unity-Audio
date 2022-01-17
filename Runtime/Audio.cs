@@ -43,6 +43,26 @@ namespace DavidFDev.Audio
 
         #endregion
 
+        #region Static properties
+
+        /// <summary>
+        ///     Current audio clip used by the music playback.
+        /// </summary>
+        public static AudioClip CurrentMusic
+        {
+            get => _musicPlayback.clip;
+        }
+
+        /// <summary>
+        ///     Whether the music playback is currently fading between two tracks.
+        /// </summary>
+        public static bool IsMusicFading
+        {
+            get => _musicFadeIn != null || _musicFadeOut != null;
+        }
+
+        #endregion
+
         #region Static methods
 
         /// <summary>
@@ -162,6 +182,8 @@ namespace DavidFDev.Audio
                 _musicFader.Stop();
                 _musicFader.clip = _musicPlayback.clip;
                 _musicFader.outputAudioMixerGroup = _musicPlayback.outputAudioMixerGroup;
+                _musicFader.pitch = _musicPlayback.pitch;
+                _musicFader.panStereo = _musicPlayback.panStereo;
                 _musicFader.Play();
                 _musicFader.timeSamples = _musicPlayback.timeSamples;
 
@@ -171,7 +193,7 @@ namespace DavidFDev.Audio
                     _mono.StopCoroutine(_musicFadeOut);
                 }
 
-                _musicFadeOut = _mono.StartCoroutine(SimpleLerp(MusicSettings.Volume, 0f, fadeOut, Mathf.Lerp, x => _musicFader.volume = x, () => { _musicFadeOut = null; _musicFader.clip = null; }));
+                _musicFadeOut = _mono.StartCoroutine(SimpleLerp(MusicPlayback.Volume, 0f, fadeOut, Mathf.Lerp, x => _musicFader.volume = x, () => { _musicFadeOut = null; _musicFader.clip = null; }));
 
 #if DEBUG_AUDIO
                 Debug.Log($"Began fading out old music, {GetAudioClipName(_musicFader)}, over {fadeOut} seconds.");
@@ -209,7 +231,7 @@ namespace DavidFDev.Audio
                     _mono.StopCoroutine(_musicFadeIn);
                 }
 
-                _musicFadeIn = _mono.StartCoroutine(SimpleLerp(0f, MusicSettings.Volume, fadeIn, Mathf.Lerp, x => _musicPlayback.volume = x, () => _musicFadeIn = null));
+                _musicFadeIn = _mono.StartCoroutine(SimpleLerp(0f, MusicPlayback.Volume, fadeIn, Mathf.Lerp, x => _musicPlayback.volume = x, () => _musicFadeIn = null));
 
 #if DEBUG_AUDIO
                 Debug.Log($"Began fading in new music, {GetAudioClipName(_musicPlayback)}, over {fadeIn} seconds.");
@@ -513,9 +535,9 @@ namespace DavidFDev.Audio
         }
 
         /// <summary>
-        ///     Settings for manipulating the music playback.
+        ///     Settings for manipulating the music playback (similar to AudioSource).
         /// </summary>
-        public static class MusicSettings
+        public static class MusicPlayback
         {
             #region Static fields
 
@@ -524,22 +546,6 @@ namespace DavidFDev.Audio
             #endregion
 
             #region Static properties
-
-            /// <summary>
-            ///     Current audio clip used by the music playback.
-            /// </summary>
-            public static AudioClip Music
-            {
-                get => _musicPlayback.clip;
-            }
-            
-            /// <summary>
-            ///     Whether the music playback is currently fading between two tracks.
-            /// </summary>
-            public static bool IsFading
-            {
-                get => _musicFadeIn != null || _musicFadeOut != null;
-            }
 
             /// <summary>
             ///     Group that the music playback should output to.
@@ -558,7 +564,7 @@ namespace DavidFDev.Audio
                 get => _targetVolume;
                 set
                 {
-                    if (IsFading)
+                    if (IsMusicFading)
                     {
                         return;
                     }
@@ -577,12 +583,30 @@ namespace DavidFDev.Audio
             }
 
             /// <summary>
+            ///     Pitch of the music playback [-3.0 - 3.0].
+            /// </summary>
+            public static float Pitch
+            {
+                get => _musicPlayback.pitch;
+                set => _musicPlayback.pitch = Mathf.Clamp(value, -3f, 3f);
+            }
+
+            /// <summary>
             ///     Priority of the music playback [0 - 256].
             /// </summary>
             public static int Priority
             {
                 get => _musicPlayback.priority;
                 set => _musicPlayback.priority = _musicFader.priority = Mathf.Clamp(value, 0, 256);
+            }
+
+            /// <summary>
+            ///     Pan the location of a stereo or mono music playback [-1.0 (left) - 1.0 (right)].
+            /// </summary>
+            public static float StereoPan
+            {
+                get => _musicPlayback.panStereo;
+                set => _musicPlayback.panStereo = Mathf.Clamp(value, -1f, 1f);
             }
 
             /// <summary>

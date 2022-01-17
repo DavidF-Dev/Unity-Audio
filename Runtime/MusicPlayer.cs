@@ -52,7 +52,7 @@ namespace DavidFDev.Audio
         /// </summary>
         public void StopMusic()
         {
-            if (Audio.MusicSettings.Music != Music)
+            if (Audio.CurrentMusic != Music)
             {
                 return;
             }

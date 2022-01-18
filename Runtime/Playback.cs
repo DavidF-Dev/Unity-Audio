@@ -33,9 +33,20 @@ namespace DavidFDev.Audio
         #region Properties
 
         /// <summary>
+        ///     Audio clip being played.
+        /// </summary>
+        public AudioClip Clip
+        {
+            get => _source == null ? null : _source.clip;
+        }
+
+        /// <summary>
         ///     Whether the audio playback is active.
         /// </summary>
-        public bool IsPlaying => _source != null && (_source.isPlaying && !_isPaused);
+        public bool IsPlaying
+        {
+            get => _source != null && (_source.isPlaying && !_isPaused);
+        }
 
         /// <summary>
         ///     Whether the audio playback is paused.
@@ -49,7 +60,10 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Whether the audio playback is finished and can no longer be used.
         /// </summary>
-        public bool IsFinished => _source == null || (!_source.isPlaying && !_isPaused);
+        public bool IsFinished
+        {
+            get => _source == null || (!_source.isPlaying && !_isPaused);
+        }
 
         /// <summary>
         ///     Group that the audio playback should output to.

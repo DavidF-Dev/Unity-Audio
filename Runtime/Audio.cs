@@ -2,8 +2,8 @@
 // Purpose: Static class for playing audio (clips, sound effects and music).
 // Created by: DavidFDev
 
-//#define HIDE_IN_EDITOR
-#define DEBUG_AUDIO
+#define HIDE_IN_EDITOR
+//#define DEBUG_AUDIO
 
 using System;
 using System.Collections;
@@ -165,10 +165,12 @@ namespace DavidFDev.Audio
         /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
         public static void PlayMusic(AudioClip music, float fadeIn = 1f, float fadeOut = 0.75f)
         {
+#if DEBUG_AUDIO
             static string GetAudioClipName(AudioSource source)
             {
                 return source.clip == null ? "none" : source.clip.name;
             }
+#endif
 
             // Cancel if the new music is the same as the current music
             if (music == _musicPlayback.clip)

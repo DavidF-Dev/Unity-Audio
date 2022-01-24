@@ -9,6 +9,7 @@ namespace DavidFDev.Audio
     /// <summary>
     ///     Change the music being played.
     /// </summary>
+    [AddComponentMenu("DavidFDev/Audio/Music Player")]
     public class MusicPlayer : MonoBehaviour
     {
         #region Properties

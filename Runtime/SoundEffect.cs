@@ -12,7 +12,7 @@ namespace DavidFDev.Audio
     /// <summary>
     ///     Sound effect that can be played at any time.
     /// </summary>
-    [CreateAssetMenu()]
+    [CreateAssetMenu(menuName = "DavidFDev/Audio/Sound Effect")]
     public sealed class SoundEffect : ScriptableObject
     {
         #region Fields

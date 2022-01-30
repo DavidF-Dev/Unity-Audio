@@ -175,6 +175,16 @@ namespace DavidFDev.Audio
             return Clips[clipIndex];
         }
 
+        private void Reset()
+        {
+            SmartRandom = true;
+            MinVolume = 1f;
+            MaxVolume = 1f;
+            MinPitch = 1f;
+            MaxPitch = 1f;
+            Priority = 128;
+        }
+
         #endregion
     }
 }

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2022-01-30
+- Fixed SoundEffect asset not setting default values when resetting.
+
 ## [1.0.1] - 2021-12-25
 - Added DavidFDev folder to contain component and scriptable object in create menus.
 

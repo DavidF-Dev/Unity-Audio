@@ -1,6 +1,6 @@
 {
 	"name": "com.davidfdev.audio",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"displayName": "Audio Solution by DavidFDev",
 	"description": "Seamlessly play audio clips, sound effects and music in Unity.",
 	"unity": "2019.1",

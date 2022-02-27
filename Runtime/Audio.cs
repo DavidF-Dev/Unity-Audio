@@ -8,8 +8,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -22,24 +22,34 @@ namespace DavidFDev.Audio
     {
         #region Static fields
 
-        private static Transform _parent;
+        [NotNull]
+        private static Transform _parent = null!;
 
-        private static MonoBehaviour _mono;
+        [NotNull]
+        private static MonoBehaviour _mono = null!;
 
-        private static readonly Dictionary<AudioSource, Playback> _current = new Dictionary<AudioSource, Playback>();
+        [NotNull]
+        private static readonly Dictionary<AudioSource, Playback> Current = new Dictionary<AudioSource, Playback>();
 
-        private static readonly Stack<AudioSource> _available = new Stack<AudioSource>();
+        [NotNull]
+        private static readonly Stack<AudioSource> Available = new Stack<AudioSource>();
 
-        private static readonly Dictionary<string, AudioClip> _cachedClips = new Dictionary<string, AudioClip>();
+        [NotNull]
+        private static readonly Dictionary<string, AudioClip> CachedClips = new Dictionary<string, AudioClip>();
 
-        private static readonly Dictionary<string, SoundEffect> _cachedAssets = new Dictionary<string, SoundEffect>();
+        [NotNull]
+        private static readonly Dictionary<string, SoundEffect> CachedAssets = new Dictionary<string, SoundEffect>();
 
-        private static AudioSource _musicPlayback;
+        [NotNull]
+        private static AudioSource _musicPlayback = null!;
 
-        private static AudioSource _musicFader;
+        [NotNull]
+        private static AudioSource _musicFader = null!;
 
+        [CanBeNull]
         private static Coroutine _musicFadeIn;
 
+        [CanBeNull]
         private static Coroutine _musicFadeOut;
 
         #endregion
@@ -49,20 +59,14 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Current audio clip used by the music playback.
         /// </summary>
-        [Pure]
-        public static AudioClip CurrentMusic
-        {
-            get => _musicPlayback.clip;
-        }
+        [PublicAPI, CanBeNull]
+        public static AudioClip CurrentMusic => _musicPlayback.clip;
 
         /// <summary>
         ///     Whether the music playback is currently fading between two tracks.
         /// </summary>
-        [Pure]
-        public static bool IsMusicFading
-        {
-            get => _musicFadeIn != null || _musicFadeOut != null;
-        }
+        [PublicAPI]
+        public static bool IsMusicFading => _musicFadeIn != null || _musicFadeOut != null;
 
         #endregion
 
@@ -75,14 +79,16 @@ namespace DavidFDev.Audio
         /// <param name="position">Position of the audio playback in 3D world-space.</param>
         /// <param name="output">Group that the audio playback should output to.</param>
         /// <returns>Playback instance for controlling the audio.</returns>
-        public static Playback Play(AudioClip clip, Vector3 position = default, AudioMixerGroup output = null)
+        [PublicAPI, CanBeNull]
+        public static Playback Play([CanBeNull] AudioClip clip, Vector3 position = default, [CanBeNull] AudioMixerGroup output = null)
         {
             if (clip == null)
             {
-                throw new ArgumentNullException(nameof(clip));
+                Debug.LogError("Failed to play clip: provided clip is null.");
+                return null;
             }
 
-            AudioSource source = GetAudioSource();
+            var source = GetAudioSource();
             source.clip = clip;
 
 #if !HIDE_IN_EDITOR
@@ -90,7 +96,7 @@ namespace DavidFDev.Audio
 #endif
 
             // Set defaults
-            Playback playback = _current[source];
+            var playback = Current[source];
             playback.Output = output;
             playback.Volume = PlaybackDefaults.Volume;
             playback.IsMuted = false;
@@ -117,7 +123,8 @@ namespace DavidFDev.Audio
         /// <param name="position">Position of the audio playback in 3D world-space.</param>
         /// <param name="output">Group that the audio playback should output to.</param>
         /// <returns>Playback instance for controlling the audio.</returns>
-        public static Playback Play(string path, Vector3 position = default, AudioMixerGroup output = null)
+        [PublicAPI, CanBeNull]
+        public static Playback Play([NotNull] string path, Vector3 position = default, [CanBeNull] AudioMixerGroup output = null)
         {
             return Play(TryGetClipFromResource(path), position, output);
         }
@@ -128,14 +135,28 @@ namespace DavidFDev.Audio
         /// <param name="asset">Sound effect to play.</param>
         /// <param name="position">Position of the audio playback in 3D world-space.</param>
         /// <returns>Playback instance for controlling the audio.</returns>
-        public static Playback PlaySfx(SoundEffect asset, Vector3 position = default)
+        [PublicAPI, CanBeNull]
+        public static Playback PlaySfx([CanBeNull] SoundEffect asset, Vector3 position = default)
         {
             if (asset == null)
             {
-                throw new ArgumentNullException(nameof(asset));
+                Debug.LogError("Failed to play sound effect: provided asset is null.");
+                return null;
             }
 
-            Playback playback = Play(asset.GetClipAtRandom(), position, asset.Output);
+            if (!asset.Clips.Any())
+            {
+                Debug.LogError("Failed to play sound effect: asset contains no clips.");
+                return null;
+            }
+
+            var playback = Play(asset.GetClipAtRandom(), position, asset.Output);
+            if (playback == null)
+            {
+                Debug.LogError("Failed to play sound effect: an issue occurred with the chosen clip.");
+                return null;
+            }
+            
             playback.Volume = UnityEngine.Random.Range(asset.MinVolume, asset.MaxVolume);
             playback.Pitch = UnityEngine.Random.Range(asset.MinPitch, asset.MaxPitch);
             playback.Loop = asset.Loop;
@@ -151,7 +172,8 @@ namespace DavidFDev.Audio
         /// <param name="path">Path to the sound effect to play.</param>
         /// <param name="position">Position of the audio playback in 3D world-space.</param>
         /// <returns>Playback instance for controlling the audio.</returns>
-        public static Playback PlaySfx(string path, Vector3 position = default)
+        [PublicAPI, CanBeNull]
+        public static Playback PlaySfx([NotNull] string path, Vector3 position = default)
         {
             return PlaySfx(TryGetAssetFromResource(path), position);
         }
@@ -163,7 +185,8 @@ namespace DavidFDev.Audio
         /// <param name="music">Music to play.</param>
         /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
         /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
-        public static void PlayMusic(AudioClip music, float fadeIn = 1f, float fadeOut = 0.75f)
+        [PublicAPI]
+        public static void PlayMusic([CanBeNull] AudioClip music, float fadeIn = 1f, float fadeOut = 0.75f)
         {
 #if DEBUG_AUDIO
             static string GetAudioClipName(AudioSource source)
@@ -252,13 +275,15 @@ namespace DavidFDev.Audio
         /// <param name="path">Path to the music to play.</param>
         /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
         /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
-        public static void PlayMusic(string path, float fadeIn = 1f, float fadeOut = 0.75f)
+        [PublicAPI]
+        public static void PlayMusic([NotNull] string path, float fadeIn = 1f, float fadeOut = 0.75f)
         {
-            AudioClip music = TryGetClipFromResource(path);
+            var music = TryGetClipFromResource(path);
 
             if (music == null)
             {
-                throw new Exception($"Failed to load the music track at {path}.");
+                Debug.LogError("Failed to play music: track couldn't be found.");
+                return;
             }
 
             PlayMusic(music, fadeIn, fadeOut);
@@ -268,6 +293,7 @@ namespace DavidFDev.Audio
         ///     Stop music playback.
         /// </summary>
         /// <param name="fadeOut">Duration, in seconds, that the music should take to fade out.</param>
+        [PublicAPI]
         public static void StopMusic(float fadeOut = 0.75f)
         {
             PlayMusic((AudioClip)null, 0f, fadeOut);
@@ -278,6 +304,7 @@ namespace DavidFDev.Audio
         /// </summary>
         /// <param name="stopMusic">Stop music playback.</param>
         /// <param name="destroyObjects">Destroy pooled game objects.</param>
+        [PublicAPI]
         public static void StopAllAudio(bool stopMusic = false, bool destroyObjects = false)
         {
             if (stopMusic)
@@ -287,16 +314,16 @@ namespace DavidFDev.Audio
 
             if (destroyObjects)
             {
-                foreach (AudioSource source in _current.Keys)
+                foreach (var source in Current.Keys)
                 {
                     UnityEngine.Object.Destroy(source.gameObject);
                 }
 
-                _current.Clear();
+                Current.Clear();
 
-                while (_available.Any())
+                while (Available.Any())
                 {
-                    UnityEngine.Object.Destroy(_available.Pop());
+                    UnityEngine.Object.Destroy(Available.Pop());
                 }
 
 #if DEBUG_AUDIO
@@ -307,14 +334,14 @@ namespace DavidFDev.Audio
             }
 
             // Release all the in-use sources back into the pool
-            foreach (AudioSource source in _current.Keys)
+            foreach (var source in Current.Keys)
             {
-                _current[source].ForceFinish();
-                _current[source].Dispose();
-                _available.Push(source);
+                Current[source].ForceFinish();
+                Current[source].Dispose();
+                Available.Push(source);
             }
 
-            _current.Clear();
+            Current.Clear();
 
 #if DEBUG_AUDIO
             Debug.Log("Freed all audio sources back into the pool.");
@@ -324,10 +351,11 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Clear cached audio clips and sound effect assets, freeing up memory.
         /// </summary>
+        [PublicAPI]
         public static void ClearCache()
         {
-            _cachedClips.Clear();
-            _cachedAssets.Clear();
+            CachedClips.Clear();
+            CachedAssets.Clear();
         }
 
         /// <summary>
@@ -339,8 +367,8 @@ namespace DavidFDev.Audio
         ///     <para>0.5 returns approximately -14.0db (half volume).</para>
         ///     <para>1.0 returns 0.0db (full volume - no gain).</para>
         /// </param>
-        /// <returns>Attenuation (volume) in decibals.</returns>
-        [Pure]
+        /// <returns>Attenuation (volume) in decibels.</returns>
+        [PublicAPI, Pure]
         public static float GetAttenuation(float volume01)
         {
             volume01 = Mathf.Clamp01(volume01);
@@ -352,8 +380,9 @@ namespace DavidFDev.Audio
         {
             // Create the object that will hold the audio sources
             _parent = new GameObject("Audio Pool").transform;
-            _mono = _parent.gameObject.AddComponent<DummyMono>();
-            UnityEngine.Object.DontDestroyOnLoad(_parent.gameObject);
+            GameObject parentObj;
+            _mono = (parentObj = _parent.gameObject).AddComponent<DummyMono>();
+            UnityEngine.Object.DontDestroyOnLoad(parentObj);
 #if HIDE_IN_EDITOR
             _parent.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy; 
 #endif
@@ -375,14 +404,15 @@ namespace DavidFDev.Audio
             }
         }
 
+        [NotNull]
         private static AudioSource GetAudioSource()
         {
             AudioSource source;
 
             // Check for an available audio source in the pool
-            if (_available.Any())
+            if (Available.Any())
             {
-                source = _available.Pop();
+                source = Available.Pop();
 
 #if DEBUG_AUDIO
                 Debug.Log("Retrieved available audio source from the pool.");
@@ -390,11 +420,11 @@ namespace DavidFDev.Audio
             }
 
             // Otherwise, search for a finished audio source
-            else if ((source = _current.FirstOrDefault(x => x.Value.IsFinished).Key) != null)
+            else if ((source = Current.FirstOrDefault(x => x.Value.IsFinished).Key) != null)
             {
                 // Get the source ready for re-use
-                _current[source].Dispose();
-                _current.Remove(source);
+                Current[source].Dispose();
+                Current.Remove(source);
 
 #if DEBUG_AUDIO
                 Debug.Log("Retrieved a previously finished audio source.");
@@ -413,16 +443,17 @@ namespace DavidFDev.Audio
 #endif
             }
 
-            _current.Add(source, new Playback(source));
+            Current.Add(source, new Playback(source));
             source.gameObject.SetActive(true);
 
             return source;
         }
 
-        private static AudioClip TryGetClipFromResource(string path)
+        [CanBeNull]
+        private static AudioClip TryGetClipFromResource([NotNull] string path)
         {
             // Check if the clip has been cached for easy retrieval
-            if (_cachedClips.TryGetValue(path, out AudioClip clip))
+            if (CachedClips.TryGetValue(path, out var clip))
             {
 #if DEBUG_AUDIO
                 Debug.Log("Retrieved audio clip from cached resources.");
@@ -436,7 +467,10 @@ namespace DavidFDev.Audio
 
             if (clip == null)
             {
-                throw new Exception($"Failed to load AudioClip at {path}");
+#if DEBUG_AUDIO
+                Debug.LogError($"Failed to load clip: no clip could be found at \"{path}\".");
+#endif
+                return null;
             }
 
 #if DEBUG_AUDIO
@@ -444,15 +478,16 @@ namespace DavidFDev.Audio
 #endif
 
             // Cache
-            _cachedClips.Add(path, clip);
+            CachedClips.Add(path, clip);
 
             return clip;
         }
 
-        private static SoundEffect TryGetAssetFromResource(string path)
+        [CanBeNull]
+        private static SoundEffect TryGetAssetFromResource([NotNull] string path)
         {
             // Check if the asset has been cached for easy retrieval
-            if (_cachedAssets.TryGetValue(path, out SoundEffect asset))
+            if (CachedAssets.TryGetValue(path, out var asset))
             {
 #if DEBUG_AUDIO
                 Debug.Log("Retrieved asset from cached resources.");
@@ -466,7 +501,10 @@ namespace DavidFDev.Audio
 
             if (asset == null)
             {
-                throw new Exception($"Failed to load {nameof(SoundEffect)} at {path}");
+#if DEBUG_AUDIO
+                Debug.LogError($"Failed to load asset: no asset could be found at \"{path}\".");
+#endif
+                return null;
             }
 
 #if DEBUG_AUDIO
@@ -474,12 +512,12 @@ namespace DavidFDev.Audio
 #endif
 
             // Cache
-            _cachedAssets.Add(path, asset);
+            CachedAssets.Add(path, asset);
 
             return asset;
         }
 
-        private static IEnumerator SimpleLerp<T>(T start, T end, float duration, Func<T, T, float, T> lerpFunction, Action<T> onUpdate, Action onComplete)
+        private static IEnumerator SimpleLerp<T>([NotNull] T start, [NotNull] T end, float duration, [NotNull] Func<T, T, float, T> lerpFunction, [NotNull] Action<T> onUpdate, [CanBeNull] Action onComplete)
         {
             for (float t = 0; t <= duration; t += Time.deltaTime)
             {
@@ -498,6 +536,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Default values used for audio playback.
         /// </summary>
+        [PublicAPI]
         public static class PlaybackDefaults
         {
             #region Static fields
@@ -515,6 +554,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Volume of the audio playback [0.0 - 1.0].
             /// </summary>
+            [PublicAPI]
             public static float Volume
             {
                 get => _volume;
@@ -524,6 +564,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Pitch of the audio playback [-3.0 - 3.0].
             /// </summary>
+            [PublicAPI]
             public static float Pitch
             {
                 get => _pitch;
@@ -533,6 +574,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].
             /// </summary>
+            [PublicAPI]
             public static float SpatialBlend
             {
                 get => _spatialBlend;
@@ -545,6 +587,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Settings for manipulating the music playback (similar to AudioSource).
         /// </summary>
+        [PublicAPI]
         public static class MusicPlayback
         {
             #region Static fields
@@ -558,6 +601,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Group that the music playback should output to.
             /// </summary>
+            [PublicAPI, CanBeNull]
             public static AudioMixerGroup Output
             {
                 get => _musicPlayback.outputAudioMixerGroup;
@@ -565,8 +609,9 @@ namespace DavidFDev.Audio
             }
 
             /// <summary>
-            ///     Volume of the music playback outside of crossfade transitions [0.0 - 1.0].
+            ///     Volume of the music playback outside of cross-fade transitions [0.0 - 1.0].
             /// </summary>
+            [PublicAPI]
             public static float Volume
             {
                 get => _targetVolume;
@@ -584,6 +629,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Whether the music playback is muted.
             /// </summary>
+            [PublicAPI]
             public static bool IsMuted
             {
                 get => _musicPlayback.mute;
@@ -593,6 +639,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Pitch of the music playback [-3.0 - 3.0].
             /// </summary>
+            [PublicAPI]
             public static float Pitch
             {
                 get => _musicPlayback.pitch;
@@ -602,6 +649,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Priority of the music playback [0 - 256].
             /// </summary>
+            [PublicAPI]
             public static int Priority
             {
                 get => _musicPlayback.priority;
@@ -611,6 +659,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Pan the location of a stereo or mono music playback [-1.0 (left) - 1.0 (right)].
             /// </summary>
+            [PublicAPI]
             public static float StereoPan
             {
                 get => _musicPlayback.panStereo;
@@ -620,6 +669,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Music playback position in seconds.
             /// </summary>
+            [PublicAPI]
             public static float Time
             {
                 get => _musicPlayback.time;
@@ -629,6 +679,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Music playback position in PCM samples.
             /// </summary>
+            [PublicAPI]
             public static int TimeSamples
             {
                 get => _musicPlayback.timeSamples;

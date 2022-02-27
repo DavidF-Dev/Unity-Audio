@@ -2,7 +2,7 @@
 // Purpose: Control audio playback, abstracting the audio source component.
 // Created by: DavidFDev
 
-using System.Diagnostics.Contracts;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -15,6 +15,7 @@ namespace DavidFDev.Audio
     {
         #region Fields
 
+        [NotNull]
         private AudioSource _source;
 
         private bool _isPaused;
@@ -23,7 +24,7 @@ namespace DavidFDev.Audio
 
         #region Constructors
 
-        internal Playback(AudioSource source)
+        internal Playback([NotNull] AudioSource source)
         {
             _source = source;
         }
@@ -35,22 +36,19 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Audio clip being played.
         /// </summary>
-        public AudioClip Clip
-        {
-            get => _source == null ? null : _source.clip;
-        }
+        [PublicAPI, CanBeNull]
+        public AudioClip Clip => _source == null ? null : _source.clip;
 
         /// <summary>
         ///     Whether the audio playback is active.
         /// </summary>
-        public bool IsPlaying
-        {
-            get => _source != null && (_source.isPlaying && !_isPaused);
-        }
+        [PublicAPI]
+        public bool IsPlaying => _source != null && (_source.isPlaying && !_isPaused);
 
         /// <summary>
         ///     Whether the audio playback is paused.
         /// </summary>
+        [PublicAPI]
         public bool IsPaused
         {
             get => _isPaused;
@@ -60,14 +58,13 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Whether the audio playback is finished and can no longer be used.
         /// </summary>
-        public bool IsFinished
-        {
-            get => _source == null || (!_source.isPlaying && !_isPaused);
-        }
+        [PublicAPI]
+        public bool IsFinished => _source == null || !_source.isPlaying && !_isPaused;
 
         /// <summary>
         ///     Group that the audio playback should output to.
         /// </summary>
+        [PublicAPI, CanBeNull]
         public AudioMixerGroup Output
         {
             get => _source.outputAudioMixerGroup;
@@ -77,6 +74,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Volume of the audio playback [0.0 - 1.0].
         /// </summary>
+        [PublicAPI]
         public float Volume
         {
             get => _source.volume;
@@ -86,6 +84,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Whether the audio playback is muted.
         /// </summary>
+        [PublicAPI]
         public bool IsMuted
         {
             get => _source.mute;
@@ -95,6 +94,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Pitch of the audio playback [-3.0 - 3.0].
         /// </summary>
+        [PublicAPI]
         public float Pitch
         {
             get => _source.pitch;
@@ -104,6 +104,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Whether the audio playback should loop.
         /// </summary>
+        [PublicAPI]
         public bool Loop
         {
             get => _source.loop;
@@ -113,6 +114,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Priority of the audio playback [0 - 256].
         /// </summary>
+        [PublicAPI]
         public int Priority
         {
             get => _source.priority;
@@ -122,6 +124,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].
         /// </summary>
+        [PublicAPI]
         public float StereoPan
         {
             get => _source.panStereo;
@@ -131,6 +134,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].
         /// </summary>
+        [PublicAPI]
         public float SpatialBlend
         {
             get => _source.spatialBlend;
@@ -140,6 +144,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Position of the audio playback in 3D world-space.
         /// </summary>
+        [PublicAPI]
         public Vector3 Position
         {
             get => _source.transform.position;
@@ -149,6 +154,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Playback position in seconds.
         /// </summary>
+        [PublicAPI]
         public float Time
         {
             get => _source.time;
@@ -158,6 +164,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Playback position in PCM samples.
         /// </summary>
+        [PublicAPI]
         public int TimeSamples
         {
             get => _source.timeSamples;
@@ -171,8 +178,10 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Pauses playback.
         /// </summary>
+        [PublicAPI]
         public void Pause()
         {
+            if (_source == null) return;
             IsPaused = true;
 
             if (IsPaused)
@@ -184,8 +193,10 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Unpauses playback.
         /// </summary>
+        [PublicAPI]
         public void Unpause()
         {
+            if (_source == null) return;
             IsPaused = false;
 
             if (!IsPaused)
@@ -197,26 +208,23 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Forcefully finish the playback.
         /// </summary>
+        [PublicAPI]
         public void ForceFinish()
         {
+            if (_source == null) return;
             _source.Stop();
             IsPaused = false;
         }
 
-        [Pure]
+        [PublicAPI, Pure]
         public override string ToString()
         {
-            if (IsFinished)
-            {
-                return "Finished";
-            }
-
-            return $"{_source.clip.name} ({(IsPaused ? "Paused" : "Playing")})";
+            return IsFinished ? "Finished" : $"{_source.clip.name} ({(IsPaused ? "Paused" : "Playing")})";
         }
 
         internal void Dispose()
         {
-            _source = null;
+            _source = null!;
         }
 
         #endregion

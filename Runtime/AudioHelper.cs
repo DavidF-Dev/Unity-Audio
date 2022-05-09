@@ -105,6 +105,11 @@ namespace DavidFDev.Audio
             playback.Priority = 128;
             playback.StereoPan = 0f;
             playback.SpatialBlend = PlaybackDefaults.SpatialBlend;
+            playback.Doppler = PlaybackDefaults.Doppler;
+            playback.Spread = PlaybackDefaults.Spread;
+            playback.RolloffMode = PlaybackDefaults.RolloffMode;
+            playback.MinDistance = PlaybackDefaults.MinDistance;
+            playback.MaxDistance = PlaybackDefaults.MaxDistance;
             playback.Position = position;
 
             source.Play();
@@ -564,6 +569,14 @@ namespace DavidFDev.Audio
 
             private static float _spatialBlend;
 
+            private static float _doppler = 1f;
+
+            private static float _spread;
+
+            private static float _minDistance = 1f;
+
+            private static float _maxDistance = 500f;
+
             #endregion
 
             #region Static properties
@@ -596,6 +609,58 @@ namespace DavidFDev.Audio
             {
                 get => _spatialBlend;
                 set => _spatialBlend = Mathf.Clamp01(value);
+            }
+
+            /// <summary>
+            ///     Doppler scale for 3D spatialisation [0.0 - 5.0].<br />
+            ///     Used in 3D spatialisation calculations.
+            /// </summary>
+            [PublicAPI]
+            public static float Doppler
+            {
+                get => _doppler;
+                set => _doppler = Mathf.Clamp(value, 0, 5);
+            }
+
+            /// <summary>
+            ///     Spread angle (in degrees) of a 3D stereo or multichannel sound in speaker space [0.0 - 360.0].<br />
+            ///     Used in 3D spatialisation calculations.
+            /// </summary>
+            [PublicAPI]
+            public static float Spread
+            {
+                get => _spread;
+                set => _spread = Mathf.Clamp(value, 0, 360);
+            }
+
+            /// <summary>
+            ///     How the audio source attenuates over distance.<br />
+            ///     Used in 3D spatialisation calculations.
+            /// </summary>
+            [PublicAPI]
+            public static AudioRolloffMode RolloffMode { get; set; }
+
+            /// <summary>
+            ///     Within the minimum distance the audio source will cease to grow louder in volume.<br />
+            ///     Used in 3D spatialisation calculations.
+            /// </summary>
+            [PublicAPI]
+            public static float MinDistance
+            {
+                get => _minDistance;
+                set => _minDistance = Mathf.Max(value, 0f);
+            }
+            
+            /// <summary>
+            ///     Logarithmic rolloff: Distance at which the sound stops attenuating.<br />
+            ///     Linear rolloff: Distance at which the sound is completely inaudible.<br />
+            ///     Used in 3D spatialisation calculations.
+            /// </summary>
+            [PublicAPI]
+            public static float MaxDistance
+            {
+                get => _maxDistance;
+                set => _maxDistance = Mathf.Max(value, 0f);
             }
 
             #endregion

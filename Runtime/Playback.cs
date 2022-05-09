@@ -153,7 +153,7 @@ namespace DavidFDev.Audio
         }
 
         /// <summary>
-        ///     Spread angle (in degrees) of a 3D stereo or multichannel sound in speaker space.<br />
+        ///     Spread angle (in degrees) of a 3D stereo or multichannel sound in speaker space [0.0 - 360.0].<br />
         ///     Used in 3D spatialisation calculations.
         /// </summary>
         [PublicAPI]

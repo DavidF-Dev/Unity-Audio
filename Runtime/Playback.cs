@@ -140,6 +140,62 @@ namespace DavidFDev.Audio
             get => _source.spatialBlend;
             set => _source.spatialBlend = Mathf.Clamp01(value);
         }
+    
+        /// <summary>
+        ///     Doppler scale for 3D spatialisation [0.0 - 5.0].<br />
+        ///     Used in 3D spatialisation calculations.
+        /// </summary>
+        [PublicAPI]
+        public float Doppler
+        {
+            get => _source.dopplerLevel;
+            set => _source.dopplerLevel = Mathf.Clamp(value, 0f, 5f);
+        }
+
+        /// <summary>
+        ///     Spread angle (in degrees) of a 3D stereo or multichannel sound in speaker space.<br />
+        ///     Used in 3D spatialisation calculations.
+        /// </summary>
+        [PublicAPI]
+        public float Spread
+        {
+            get => _source.spread;
+            set => _source.spread = Mathf.Clamp(value, 0, 360);
+        }
+
+        /// <summary>
+        ///     How the audio source attenuates over distance.<br />
+        ///     Used in 3D spatialisation calculations.
+        /// </summary>
+        [PublicAPI]
+        public AudioRolloffMode RolloffMode
+        {
+            get => _source.rolloffMode;
+            set => _source.rolloffMode = value;
+        }
+
+        /// <summary>
+        ///     Within the minimum distance the audio source will cease to grow louder in volume.<br />
+        ///     Used in 3D spatialisation calculations.
+        /// </summary>
+        [PublicAPI]
+        public float MinDistance
+        {
+            get => _source.minDistance;
+            set => _source.minDistance = Mathf.Max(value, 0f);
+        }
+
+        /// <summary>
+        ///     Logarithmic rolloff: Distance at which the sound stops attenuating.<br />
+        ///     Linear rolloff: Distance at which the sound is completely inaudible.<br />
+        ///     Used in 3D spatialisation calculations.
+        /// </summary>
+        [PublicAPI]
+        public float MaxDistance
+        {
+            get => _source.maxDistance;
+            set => _source.maxDistance = Mathf.Max(value, 0f);
+        }
 
         /// <summary>
         ///     Position of the audio playback in 3D world-space.

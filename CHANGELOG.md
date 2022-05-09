@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Added 3D spatialisation settings to Playback.cs.
+- Added helper method to convert db to 0-1 range logarithmically.
 - Replaced SoundEffect constructor with static method.
+- Renamed Audio.cs to AudioHelper.cs.
 
 ## [1.0.3] - 2022-02-27
 - Added JetBrain annotations.

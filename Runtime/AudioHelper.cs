@@ -363,16 +363,33 @@ namespace DavidFDev.Audio
         ///     Use this instead of a linear scale - decibels do not scale linearly!
         /// </summary>
         /// <param name="volume01">
-        ///     0.0 returns -80.0db (practically silent).
-        ///     <para>0.5 returns approximately -14.0db (half volume).</para>
-        ///     <para>1.0 returns 0.0db (full volume - no gain).</para>
+        ///     0.0 returns -80.0db (practically silent).<br />
+        ///     0.5 returns approximately -14.0db (half volume).<br />
+        ///     1.0 returns 0.0db (full volume - no gain).
         /// </param>
         /// <returns>Attenuation (volume) in decibels.</returns>
         [PublicAPI, Pure]
         public static float GetAttenuation(float volume01)
         {
             volume01 = Mathf.Clamp01(volume01);
-            return volume01 == 0f ? -80f : (Mathf.Log(volume01) * 20f);
+            return volume01 == 0f ? -80f : Mathf.Log(volume01) * 20f;
+        }
+
+        /// <summary>
+        ///     Get a normalised attenuation (volume) clamped between 0 and 1, using an inversed logarithmic scale.
+        /// </summary>
+        /// <param name="volume">
+        ///     -80.0db returns 0.0.<br />
+        ///     -14.0db returns 0.5.<br />
+        ///     0.0db returns 1.0.
+        /// </param>
+        /// <returns>
+        ///     Normalised attenuation [0.0 - 1.0].
+        /// </returns>
+        [PublicAPI, Pure]
+        public static float GetNormalisedAttenuation(float volume)
+        {
+            return Mathf.Pow((float)Math.E, volume / 20f);
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

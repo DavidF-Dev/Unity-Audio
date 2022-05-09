@@ -197,7 +197,7 @@ namespace DavidFDev.Audio
         [CanBeNull]
         public Playback Play(Vector3 position = default)
         {
-            return Audio.PlaySfx(this, position);
+            return AudioHelper.PlaySfx(this, position);
         }
 
         [CanBeNull]

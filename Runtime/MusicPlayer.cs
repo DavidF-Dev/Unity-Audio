@@ -51,7 +51,7 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void PlayMusic()
         {
-            Audio.PlayMusic(Music, FadeInDuration, FadeOutDuration);
+            AudioHelper.PlayMusic(Music, FadeInDuration, FadeOutDuration);
         }
 
         /// <summary>
@@ -60,12 +60,12 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void StopMusic()
         {
-            if (Audio.CurrentMusic != Music)
+            if (AudioHelper.CurrentMusic != Music)
             {
                 return;
             }
 
-            Audio.StopMusic(FadeOutDuration);
+            AudioHelper.StopMusic(FadeOutDuration);
         }
 
         private void Awake()

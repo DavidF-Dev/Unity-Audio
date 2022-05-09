@@ -1,4 +1,4 @@
-﻿// File: Audio.cs
+﻿// File: AudioHelper.cs
 // Purpose: Static class for playing audio (clips, sound effects and music).
 // Created by: DavidFDev
 
@@ -18,7 +18,7 @@ namespace DavidFDev.Audio
     /// <summary>
     ///     Play audio clips, sound effects and music. Also provides other helpful audio methods.
     /// </summary>
-    public static class Audio
+    public static class AudioHelper
     {
         #region Static fields
 

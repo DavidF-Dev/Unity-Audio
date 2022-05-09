@@ -38,7 +38,10 @@ namespace DavidFDev.Audio
         private static readonly Dictionary<string, AudioClip> CachedClips = new Dictionary<string, AudioClip>();
 
         [NotNull]
-        private static readonly Dictionary<string, SoundEffect> CachedAssets = new Dictionary<string, SoundEffect>();
+        private static readonly Dictionary<string, SoundEffect> CachedSfxAssets = new Dictionary<string, SoundEffect>();
+
+        [NotNull]
+        private static readonly Dictionary<string, Music> CachedMusicAssets = new Dictionary<string, Music>();
 
         [NotNull]
         private static AudioSource _musicPlayback = null!;
@@ -180,7 +183,7 @@ namespace DavidFDev.Audio
         [PublicAPI, CanBeNull]
         public static Playback PlaySfx([NotNull] string path, Vector3 position = default)
         {
-            return PlaySfx(TryGetAssetFromResource(path), position);
+            return PlaySfx(TryGetSfxFromResource(path), position);
         }
 
         /// <summary>
@@ -295,6 +298,43 @@ namespace DavidFDev.Audio
         }
 
         /// <summary>
+        ///     Play a music track asset. If a music track is already playing, it will be faded out.
+        ///     <para>Note: .mp3 files are known to cause popping sounds in Unity under certain circumstances.</para>
+        /// </summary>
+        /// <param name="asset">Music asset to play.</param>
+        /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
+        /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
+        [PublicAPI]
+        public static void PlayMusicAsset([CanBeNull] Music asset, float fadeIn = 1f, float fadeOut = 0.75f)
+        {
+            if (asset == null)
+            {
+                Debug.LogError("Failed to play music: provided asset is null.");
+                return;
+            }
+
+            PlayMusic(asset.Clip, fadeIn, fadeOut);
+            MusicPlayback.Output = asset.Output;
+            MusicPlayback.Volume = UnityEngine.Random.Range(asset.MinVolume, asset.MaxVolume);
+            MusicPlayback.Pitch = UnityEngine.Random.Range(asset.MinPitch, asset.MaxPitch);
+            MusicPlayback.Priority = asset.Priority;
+            MusicPlayback.StereoPan = asset.StereoPan;
+        }
+
+        /// <summary>
+        ///     Play a music track asset loaded from a resource. If a music track is already playing, it will be faded out.
+        ///     <para>Note: .mp3 files are known to cause popping sounds in Unity under certain circumstances.</para> 
+        /// </summary>
+        /// <param name="path">Path to the music asset to play.</param>
+        /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
+        /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
+        [PublicAPI]
+        public static void PlayMusicAsset([NotNull] string path, float fadeIn = 1f, float fadeOut = 0.75f)
+        {
+            PlayMusicAsset(TryGetMusicFromResource(path), fadeIn, fadeOut);
+        }
+        
+        /// <summary>
         ///     Stop music playback.
         /// </summary>
         /// <param name="fadeOut">Duration, in seconds, that the music should take to fade out.</param>
@@ -360,7 +400,8 @@ namespace DavidFDev.Audio
         public static void ClearCache()
         {
             CachedClips.Clear();
-            CachedAssets.Clear();
+            CachedSfxAssets.Clear();
+            CachedMusicAssets.Clear();
         }
 
         /// <summary>
@@ -506,10 +547,10 @@ namespace DavidFDev.Audio
         }
 
         [CanBeNull]
-        private static SoundEffect TryGetAssetFromResource([NotNull] string path)
+        private static SoundEffect TryGetSfxFromResource([NotNull] string path)
         {
             // Check if the asset has been cached for easy retrieval
-            if (CachedAssets.TryGetValue(path, out var asset))
+            if (CachedSfxAssets.TryGetValue(path, out var asset))
             {
 #if DEBUG_AUDIO
                 Debug.Log("Retrieved asset from cached resources.");
@@ -534,11 +575,45 @@ namespace DavidFDev.Audio
 #endif
 
             // Cache
-            CachedAssets.Add(path, asset);
+            CachedSfxAssets.Add(path, asset);
 
             return asset;
         }
 
+        [CanBeNull]
+        private static Music TryGetMusicFromResource([NotNull] string path)
+        {
+            // Check if the asset has been cached for easy retrieval
+            if (CachedMusicAssets.TryGetValue(path, out var asset))
+            {
+#if DEBUG_AUDIO
+                Debug.Log("Retrieved asset from cached resources.");
+#endif
+
+                return asset;
+            }
+
+            // Load the asset from the resources folder
+            asset = Resources.Load<Music>(path);
+
+            if (asset == null)
+            {
+#if DEBUG_AUDIO
+                Debug.LogError($"Failed to load asset: no asset could be found at \"{path}\".");
+#endif
+                return null;
+            }
+
+#if DEBUG_AUDIO
+            Debug.Log("Loaded asset from resources.");
+#endif
+
+            // Cache
+            CachedMusicAssets.Add(path, asset);
+
+            return asset;
+        }
+        
         private static IEnumerator SimpleLerp<T>([NotNull] T start, [NotNull] T end, float duration, [NotNull] Func<T, T, float, T> lerpFunction, [NotNull] Action<T> onUpdate, [CanBeNull] Action onComplete)
         {
             for (float t = 0; t <= duration; t += Time.deltaTime)
@@ -701,6 +776,7 @@ namespace DavidFDev.Audio
                 {
                     if (IsMusicFading)
                     {
+                        _targetVolume = Mathf.Clamp01(value);
                         return;
                     }
 

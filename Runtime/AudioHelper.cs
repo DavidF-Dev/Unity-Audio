@@ -12,6 +12,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Audio;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace DavidFDev.Audio
 {
@@ -62,7 +64,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Current audio clip used by the music playback.
         /// </summary>
-        [PublicAPI, CanBeNull]
+        [PublicAPI] [CanBeNull]
         public static AudioClip CurrentMusic => _musicPlayback.clip;
 
         /// <summary>
@@ -82,8 +84,9 @@ namespace DavidFDev.Audio
         /// <param name="position">Position of the audio playback in 3D world-space.</param>
         /// <param name="output">Group that the audio playback should output to.</param>
         /// <returns>Playback instance for controlling the audio.</returns>
-        [PublicAPI, CanBeNull]
-        public static Playback Play([CanBeNull] AudioClip clip, Vector3 position = default, [CanBeNull] AudioMixerGroup output = null)
+        [PublicAPI] [CanBeNull]
+        public static Playback Play([CanBeNull] AudioClip clip, Vector3 position = default,
+            [CanBeNull] AudioMixerGroup output = null)
         {
             if (clip == null)
             {
@@ -131,8 +134,9 @@ namespace DavidFDev.Audio
         /// <param name="position">Position of the audio playback in 3D world-space.</param>
         /// <param name="output">Group that the audio playback should output to.</param>
         /// <returns>Playback instance for controlling the audio.</returns>
-        [PublicAPI, CanBeNull]
-        public static Playback Play([NotNull] string path, Vector3 position = default, [CanBeNull] AudioMixerGroup output = null)
+        [PublicAPI] [CanBeNull]
+        public static Playback Play([NotNull] string path, Vector3 position = default,
+            [CanBeNull] AudioMixerGroup output = null)
         {
             return Play(TryGetClipFromResource(path), position, output);
         }
@@ -143,7 +147,7 @@ namespace DavidFDev.Audio
         /// <param name="asset">Sound effect to play.</param>
         /// <param name="position">Position of the audio playback in 3D world-space.</param>
         /// <returns>Playback instance for controlling the audio.</returns>
-        [PublicAPI, CanBeNull]
+        [PublicAPI] [CanBeNull]
         public static Playback PlaySfx([CanBeNull] SoundEffect asset, Vector3 position = default)
         {
             if (asset == null)
@@ -164,9 +168,9 @@ namespace DavidFDev.Audio
                 Debug.LogError("Failed to play sound effect: an issue occurred with the chosen clip.");
                 return null;
             }
-            
-            playback.Volume = UnityEngine.Random.Range(asset.MinVolume, asset.MaxVolume);
-            playback.Pitch = UnityEngine.Random.Range(asset.MinPitch, asset.MaxPitch);
+
+            playback.Volume = Random.Range(asset.MinVolume, asset.MaxVolume);
+            playback.Pitch = Random.Range(asset.MinPitch, asset.MaxPitch);
             playback.Loop = asset.Loop;
             playback.Priority = asset.Priority;
             playback.StereoPan = asset.StereoPan;
@@ -180,7 +184,7 @@ namespace DavidFDev.Audio
         /// <param name="path">Path to the sound effect to play.</param>
         /// <param name="position">Position of the audio playback in 3D world-space.</param>
         /// <returns>Playback instance for controlling the audio.</returns>
-        [PublicAPI, CanBeNull]
+        [PublicAPI] [CanBeNull]
         public static Playback PlaySfx([NotNull] string path, Vector3 position = default)
         {
             return PlaySfx(TryGetSfxFromResource(path), position);
@@ -230,7 +234,13 @@ namespace DavidFDev.Audio
                     _mono.StopCoroutine(_musicFadeOut);
                 }
 
-                _musicFadeOut = _mono.StartCoroutine(SimpleLerp(_musicPlayback.volume, 0f, fadeOut, Mathf.Lerp, x => _musicFader.volume = x, () => { _musicFadeOut = null; _musicFader.Stop(); _musicFader.clip = null; }));
+                _musicFadeOut = _mono.StartCoroutine(SimpleLerp(_musicPlayback.volume, 0f, fadeOut, Mathf.Lerp,
+                    x => _musicFader.volume = x, () =>
+                    {
+                        _musicFadeOut = null;
+                        _musicFader.Stop();
+                        _musicFader.clip = null;
+                    }));
 
 #if DEBUG_AUDIO
                 Debug.Log($"Began fading out old music, {GetAudioClipName(_musicFader)}, over {fadeOut} seconds.");
@@ -268,7 +278,8 @@ namespace DavidFDev.Audio
                     _mono.StopCoroutine(_musicFadeIn);
                 }
 
-                _musicFadeIn = _mono.StartCoroutine(SimpleLerp(0f, MusicPlayback.Volume, fadeIn, Mathf.Lerp, x => _musicPlayback.volume = x, () => _musicFadeIn = null));
+                _musicFadeIn = _mono.StartCoroutine(SimpleLerp(0f, MusicPlayback.Volume, fadeIn, Mathf.Lerp,
+                    x => _musicPlayback.volume = x, () => _musicFadeIn = null));
 
 #if DEBUG_AUDIO
                 Debug.Log($"Began fading in new music, {GetAudioClipName(_musicPlayback)}, over {fadeIn} seconds.");
@@ -315,15 +326,15 @@ namespace DavidFDev.Audio
 
             PlayMusic(asset.Clip, fadeIn, fadeOut);
             MusicPlayback.Output = asset.Output;
-            MusicPlayback.Volume = UnityEngine.Random.Range(asset.MinVolume, asset.MaxVolume);
-            MusicPlayback.Pitch = UnityEngine.Random.Range(asset.MinPitch, asset.MaxPitch);
+            MusicPlayback.Volume = Random.Range(asset.MinVolume, asset.MaxVolume);
+            MusicPlayback.Pitch = Random.Range(asset.MinPitch, asset.MaxPitch);
             MusicPlayback.Priority = asset.Priority;
             MusicPlayback.StereoPan = asset.StereoPan;
         }
 
         /// <summary>
         ///     Play a music track asset loaded from a resource. If a music track is already playing, it will be faded out.
-        ///     <para>Note: .mp3 files are known to cause popping sounds in Unity under certain circumstances.</para> 
+        ///     <para>Note: .mp3 files are known to cause popping sounds in Unity under certain circumstances.</para>
         /// </summary>
         /// <param name="path">Path to the music asset to play.</param>
         /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
@@ -333,7 +344,7 @@ namespace DavidFDev.Audio
         {
             PlayMusicAsset(TryGetMusicFromResource(path), fadeIn, fadeOut);
         }
-        
+
         /// <summary>
         ///     Stop music playback.
         /// </summary>
@@ -361,14 +372,14 @@ namespace DavidFDev.Audio
             {
                 foreach (var source in Current.Keys)
                 {
-                    UnityEngine.Object.Destroy(source.gameObject);
+                    Object.Destroy(source.gameObject);
                 }
 
                 Current.Clear();
 
                 while (Available.Any())
                 {
-                    UnityEngine.Object.Destroy(Available.Pop());
+                    Object.Destroy(Available.Pop());
                 }
 
 #if DEBUG_AUDIO
@@ -414,7 +425,7 @@ namespace DavidFDev.Audio
         ///     1.0 returns 0.0db (full volume - no gain).
         /// </param>
         /// <returns>Attenuation (volume) in decibels.</returns>
-        [PublicAPI, Pure]
+        [PublicAPI] [Pure]
         public static float GetAttenuation(float volume01)
         {
             volume01 = Mathf.Clamp01(volume01);
@@ -432,7 +443,7 @@ namespace DavidFDev.Audio
         /// <returns>
         ///     Normalised attenuation [0.0 - 1.0].
         /// </returns>
-        [PublicAPI, Pure]
+        [PublicAPI] [Pure]
         public static float GetNormalisedAttenuation(float volume)
         {
             return Mathf.Pow((float)Math.E, volume / 20f);
@@ -445,9 +456,9 @@ namespace DavidFDev.Audio
             _parent = new GameObject("Audio Pool").transform;
             GameObject parentObj;
             _mono = (parentObj = _parent.gameObject).AddComponent<DummyMono>();
-            UnityEngine.Object.DontDestroyOnLoad(parentObj);
+            Object.DontDestroyOnLoad(parentObj);
 #if HIDE_IN_EDITOR
-            _parent.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy; 
+            _parent.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 #endif
 
 #if DEBUG_AUDIO
@@ -613,8 +624,9 @@ namespace DavidFDev.Audio
 
             return asset;
         }
-        
-        private static IEnumerator SimpleLerp<T>([NotNull] T start, [NotNull] T end, float duration, [NotNull] Func<T, T, float, T> lerpFunction, [NotNull] Action<T> onUpdate, [CanBeNull] Action onComplete)
+
+        private static IEnumerator SimpleLerp<T>([NotNull] T start, [NotNull] T end, float duration,
+            [NotNull] Func<T, T, float, T> lerpFunction, [NotNull] Action<T> onUpdate, [CanBeNull] Action onComplete)
         {
             for (float t = 0; t <= duration; t += Time.deltaTime)
             {
@@ -725,7 +737,7 @@ namespace DavidFDev.Audio
                 get => _minDistance;
                 set => _minDistance = Mathf.Max(value, 0f);
             }
-            
+
             /// <summary>
             ///     Logarithmic rolloff: Distance at which the sound stops attenuating.<br />
             ///     Linear rolloff: Distance at which the sound is completely inaudible.<br />
@@ -747,9 +759,13 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public static class MusicPlayback
         {
+            #region Static Fields and Constants
+
             #region Static fields
 
             private static float _targetVolume = 1f;
+
+            #endregion
 
             #endregion
 
@@ -758,7 +774,7 @@ namespace DavidFDev.Audio
             /// <summary>
             ///     Group that the music playback should output to.
             /// </summary>
-            [PublicAPI, CanBeNull]
+            [PublicAPI] [CanBeNull]
             public static AudioMixerGroup Output
             {
                 get => _musicPlayback.outputAudioMixerGroup;
@@ -848,7 +864,7 @@ namespace DavidFDev.Audio
         }
 
         [AddComponentMenu("")]
-        private sealed class DummyMono : MonoBehaviour 
+        private sealed class DummyMono : MonoBehaviour
         {
         }
 

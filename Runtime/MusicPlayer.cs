@@ -19,7 +19,7 @@ namespace DavidFDev.Audio
         ///     Music to play.
         /// </summary>
         [field: SerializeField]
-        [PublicAPI, CanBeNull]
+        [PublicAPI] [CanBeNull]
         public AudioClip Music { get; protected set; }
 
         /// <summary>
@@ -40,6 +40,18 @@ namespace DavidFDev.Audio
         /// </summary>
         [PublicAPI]
         public float FadeOutDuration { get; set; } = 0.75f;
+
+        #endregion
+
+        #region Unity Methods
+
+        private void Awake()
+        {
+            if (PlayOnAwake)
+            {
+                PlayMusic();
+            }
+        }
 
         #endregion
 
@@ -66,14 +78,6 @@ namespace DavidFDev.Audio
             }
 
             AudioHelper.StopMusic(FadeOutDuration);
-        }
-
-        private void Awake()
-        {
-            if (PlayOnAwake)
-            {
-                PlayMusic();
-            }
         }
 
         #endregion

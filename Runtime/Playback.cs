@@ -36,14 +36,14 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Audio clip being played.
         /// </summary>
-        [PublicAPI, CanBeNull]
+        [PublicAPI] [CanBeNull]
         public AudioClip Clip => _source == null ? null : _source.clip;
 
         /// <summary>
         ///     Whether the audio playback is active.
         /// </summary>
         [PublicAPI]
-        public bool IsPlaying => _source != null && (_source.isPlaying && !_isPaused);
+        public bool IsPlaying => _source != null && _source.isPlaying && !_isPaused;
 
         /// <summary>
         ///     Whether the audio playback is paused.
@@ -64,7 +64,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Group that the audio playback should output to.
         /// </summary>
-        [PublicAPI, CanBeNull]
+        [PublicAPI] [CanBeNull]
         public AudioMixerGroup Output
         {
             get => _source.outputAudioMixerGroup;
@@ -120,7 +120,7 @@ namespace DavidFDev.Audio
             get => _source.priority;
             set => _source.priority = Mathf.Clamp(value, 0, 256);
         }
-        
+
         /// <summary>
         ///     Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].
         /// </summary>
@@ -140,7 +140,7 @@ namespace DavidFDev.Audio
             get => _source.spatialBlend;
             set => _source.spatialBlend = Mathf.Clamp01(value);
         }
-    
+
         /// <summary>
         ///     Doppler scale for 3D spatialisation [0.0 - 5.0].<br />
         ///     Used in 3D spatialisation calculations.
@@ -237,7 +237,11 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void Pause()
         {
-            if (_source == null) return;
+            if (_source == null)
+            {
+                return;
+            }
+
             IsPaused = true;
 
             if (IsPaused)
@@ -252,7 +256,11 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void Unpause()
         {
-            if (_source == null) return;
+            if (_source == null)
+            {
+                return;
+            }
+
             IsPaused = false;
 
             if (!IsPaused)
@@ -267,12 +275,16 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void ForceFinish()
         {
-            if (_source == null) return;
+            if (_source == null)
+            {
+                return;
+            }
+
             _source.Stop();
             IsPaused = false;
         }
 
-        [PublicAPI, Pure]
+        [PublicAPI] [Pure]
         public override string ToString()
         {
             return IsFinished ? "Finished" : $"{_source.clip.name} ({(IsPaused ? "Paused" : "Playing")})";

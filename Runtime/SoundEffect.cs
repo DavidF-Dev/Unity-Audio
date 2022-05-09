@@ -40,7 +40,8 @@ namespace DavidFDev.Audio
         [PublicAPI]
         [NotNull]
         public static SoundEffect Create([NotNull] AudioClip[] clips, bool smartRandom = true,
-            [CanBeNull] AudioMixerGroup output = null,
+            [CanBeNull]
+            AudioMixerGroup output = null,
             float minVolume = 1f, float maxVolume = 1f, float minPitch = 1f, float maxPitch = 1f,
             bool loop = false, int priority = 128, float stereoPan = 0f, float spatialBlend = 0f)
         {

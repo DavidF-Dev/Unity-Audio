@@ -175,6 +175,8 @@ namespace DavidFDev.Audio
             playback.Priority = asset.Priority;
             playback.StereoPan = asset.StereoPan;
             playback.SpatialBlend = asset.SpatialBlend;
+            playback.IgnoreListenerPause = asset.IgnoreListenerPause;
+            playback.IgnoreListenerVolume = asset.IgnoreListenerVolume;
             return playback;
         }
 

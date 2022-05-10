@@ -169,6 +169,23 @@ namespace DavidFDev.Audio
         [field: Range(0f, 1f)]
         [PublicAPI]
         public float SpatialBlend { get; private set; }
+        
+        /// <summary>
+        ///     Allows audio to play even though AudioListener.pause is set to true.
+        /// </summary>
+        [field: Space]
+        [field: Tooltip("Allows audio to play even though AudioListener.pause is set to true.")]
+        [field: SerializeField]
+        [PublicAPI]
+        public bool IgnoreListenerPause { get; private set; }
+        
+        /// <summary>
+        ///     Whether to take into account the volume of the audio listener.
+        /// </summary>
+        [field: Tooltip("Whether to take into account the volume of the audio listener.")]
+        [field: SerializeField]
+        [PublicAPI]
+        public bool IgnoreListenerVolume { get; private set; }
 
         #endregion
 

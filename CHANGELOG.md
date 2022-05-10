@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Added Music scriptable object.
-- Added 3D spatialisation settings to Playback.cs.
+- Added Playback properties for 3D spatialisation.
+- Added Playback property to ignore the audio listener.
 - Added helper method to convert db to 0-1 range logarithmically.
 - Replaced SoundEffect constructor with static method.
 - Renamed Audio.cs to AudioHelper.cs.

@@ -227,6 +227,26 @@ namespace DavidFDev.Audio
             set => _source.timeSamples = Mathf.Max(0, value);
         }
 
+        /// <summary>
+        ///     Allows audio to play even though AudioListener.pause is set to true.
+        /// </summary>
+        [PublicAPI]
+        public bool IgnoreListenerPause
+        {
+            get => _source.ignoreListenerPause;
+            set => _source.ignoreListenerPause = value;
+        }
+
+        /// <summary>
+        ///     Whether to take into account the volume of the audio listener.
+        /// </summary>
+        [PublicAPI]
+        public bool IgnoreListenerVolume
+        {
+            get => _source.ignoreListenerVolume;
+            set => _source.ignoreListenerVolume = value;
+        }
+
         #endregion
 
         #region Methods

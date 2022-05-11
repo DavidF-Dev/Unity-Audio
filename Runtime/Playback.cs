@@ -2,6 +2,8 @@
 // Purpose: Control audio playback, abstracting the audio source component.
 // Created by: DavidFDev
 
+using System;
+using System.Collections;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -59,7 +61,7 @@ namespace DavidFDev.Audio
         ///     Whether the audio playback is finished and can no longer be used.
         /// </summary>
         [PublicAPI]
-        public bool IsFinished => _source == null || !_source.isPlaying && !_isPaused;
+        public bool IsFinished => _source == null || (!_source.isPlaying && !_isPaused);
 
         /// <summary>
         ///     Group that the audio playback should output to.
@@ -249,6 +251,29 @@ namespace DavidFDev.Audio
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        ///     Invoked when the playback finishes.
+        /// </summary>
+        [PublicAPI]
+        public event Action Finished;
+
+        /// <summary>
+        ///     Invoked when the playback pauses or unpauses.<br />
+        ///     Parameter is true when paused.
+        /// </summary>
+        [PublicAPI]
+        public event Action<bool> Paused;
+
+        /// <summary>
+        ///     Invoked when playback finishes, after the Finished event.
+        /// </summary>
+        [PublicAPI]
+        internal event Action InternalFinished;
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -257,7 +282,7 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void Pause()
         {
-            if (_source == null)
+            if (IsFinished)
             {
                 return;
             }
@@ -267,6 +292,7 @@ namespace DavidFDev.Audio
             if (IsPaused)
             {
                 _source.Pause();
+                Paused?.Invoke(true);
             }
         }
 
@@ -276,7 +302,7 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void Unpause()
         {
-            if (_source == null)
+            if (IsFinished)
             {
                 return;
             }
@@ -286,6 +312,7 @@ namespace DavidFDev.Audio
             if (!IsPaused)
             {
                 _source.UnPause();
+                Paused?.Invoke(false);
             }
         }
 
@@ -295,7 +322,7 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void ForceFinish()
         {
-            if (_source == null)
+            if (IsFinished)
             {
                 return;
             }
@@ -314,6 +341,54 @@ namespace DavidFDev.Audio
         {
             _source = null!;
         }
+
+        internal IEnumerator C_WaitForFinish()
+        {
+            yield return new WaitForPlayback(this);
+            
+            try
+            {
+                Finished?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
+                InternalFinished?.Invoke();
+            }
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    ///     Yield instruction that waits for a given playback instance to finish.<br />
+    ///     Usage: yield return new WaitForPlayback(...)
+    /// </summary>
+    public sealed class WaitForPlayback : CustomYieldInstruction
+    {
+        #region Fields
+
+        [PublicAPI]
+        [CanBeNull]
+        public readonly Playback Playback;
+
+        #endregion
+
+        #region Constructors
+
+        public WaitForPlayback([CanBeNull] Playback playback)
+        {
+            Playback = playback;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public override bool keepWaiting => !Playback?.IsFinished ?? false;
 
         #endregion
     }

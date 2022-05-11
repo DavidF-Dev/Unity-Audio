@@ -117,8 +117,18 @@ namespace DavidFDev.Audio
             playback.MinDistance = PlaybackDefaults.MinDistance;
             playback.MaxDistance = PlaybackDefaults.MaxDistance;
             playback.Position = position;
+            playback.InternalFinished += () =>
+            {
+                // Make the audio source available when the playback finishes
+                playback.Dispose();
+                Current.Remove(source);
+                Available.Push(source);
+            };
 
             source.Play();
+            
+            // This coroutine will invoke the playback's Finished event when playback finishes
+            _mono.StartCoroutine(playback.C_WaitForFinish());
 
 #if DEBUG_AUDIO
             Debug.Log($"Started audio playback for {clip.name} at {playback.Position}{(output != null ? $" [{output.name}]" : "")}.");
@@ -492,18 +502,6 @@ namespace DavidFDev.Audio
 
 #if DEBUG_AUDIO
                 Debug.Log("Retrieved available audio source from the pool.");
-#endif
-            }
-
-            // Otherwise, search for a finished audio source
-            else if ((source = Current.FirstOrDefault(x => x.Value.IsFinished).Key) != null)
-            {
-                // Get the source ready for re-use
-                Current[source].Dispose();
-                Current.Remove(source);
-
-#if DEBUG_AUDIO
-                Debug.Log("Retrieved a previously finished audio source.");
 #endif
             }
 

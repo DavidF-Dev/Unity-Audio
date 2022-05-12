@@ -64,6 +64,7 @@ namespace DavidFDev.Audio
 
         #region Fields
 
+        [NonSerialized]
         private int _previousClipIndex = -1;
 
         #endregion

@@ -120,7 +120,9 @@ namespace DavidFDev.Audio
                 : _fallbackSpatialSettings;
             playback.Doppler = spatialSettings.Doppler;
             playback.Spread = spatialSettings.Spread;
-            playback.RolloffMode = spatialSettings.RolloffMode;
+            playback.RolloffMode = spatialSettings.RolloffMode == SpatialAudioSettings.SpatialRolloffMode.Logarithmic
+                ? AudioRolloffMode.Logarithmic
+                : AudioRolloffMode.Linear;
             playback.MaxDistance = spatialSettings.MaxDistance;
             playback.MinDistance = spatialSettings.MinDistance;
             playback.Position = position;
@@ -200,7 +202,9 @@ namespace DavidFDev.Audio
                     : _fallbackSpatialSettings;
             playback.Doppler = spatialSettings.Doppler;
             playback.Spread = spatialSettings.Spread;
-            playback.RolloffMode = spatialSettings.RolloffMode;
+            playback.RolloffMode = spatialSettings.RolloffMode == SpatialAudioSettings.SpatialRolloffMode.Logarithmic
+                ? AudioRolloffMode.Logarithmic
+                : AudioRolloffMode.Linear;
             playback.MaxDistance = spatialSettings.MaxDistance;
             playback.MinDistance = spatialSettings.MinDistance;
             playback.IgnoreListenerPause = asset.IgnoreListenerPause;

@@ -9,6 +9,16 @@ namespace DavidFDev.Audio
     [CreateAssetMenu(menuName = "DavidFDev/Audio/Spatial Audio Settings")]
     public sealed class SpatialAudioSettings : ScriptableObject
     {
+        [PublicAPI]
+        public enum SpatialRolloffMode
+        {
+            [InspectorName("Logarithmic Rolloff")]
+            Logarithmic,
+            
+            [InspectorName("Linear Rolloff")]
+            Linear
+        }
+        
         #region Serialized Fields
 
         [Tooltip("Doppler scale for 3D spatialisation [0.0 - 5.0].")]
@@ -23,7 +33,7 @@ namespace DavidFDev.Audio
 
         [Tooltip("How the audio source attenuates over distance.")]
         [SerializeField]
-        private AudioRolloffMode rolloffMode;
+        private SpatialRolloffMode rolloffMode;
 
         [Tooltip("Within the minimum distance the audio source will cease to grow louder in volume.")]
         [SerializeField]
@@ -64,7 +74,7 @@ namespace DavidFDev.Audio
         ///     How the audio source attenuates over distance.
         /// </summary>
         [PublicAPI]
-        public AudioRolloffMode RolloffMode
+        public SpatialRolloffMode RolloffMode
         {
             get => rolloffMode;
             set => rolloffMode = value;

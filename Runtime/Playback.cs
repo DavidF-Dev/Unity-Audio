@@ -61,7 +61,7 @@ namespace DavidFDev.Audio
         ///     Whether the audio playback is finished and can no longer be used.
         /// </summary>
         [PublicAPI]
-        public bool IsFinished => _source == null || (!_source.isPlaying && !_isPaused);
+        public bool IsFinished => _source == null || (!_source.isPlaying && !_isPaused && (!AudioListener.pause || IgnoreListenerPause));
 
         /// <summary>
         ///     Group that the audio playback should output to.

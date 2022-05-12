@@ -145,18 +145,19 @@ namespace DavidFDev.Audio
         public float MaxPitch { get; private set; }
 
         /// <summary>
-        ///     Whether the audio playback should loop.
+        ///     Whether the audio playback should loop.<br />
+        ///     If looping, the playback must be stopped manually.
         /// </summary>
         [field: Space]
-        [field: Tooltip("Whether the audio playback should loop.")]
+        [field: Tooltip("Whether the audio playback should loop.\nIf looping, the playback must be stopped manually.")]
         [field: SerializeField]
         [PublicAPI]
         public bool Loop { get; private set; }
 
         /// <summary>
-        ///     Priority of the audio playback [0 - 256].
+        ///     Priority of the audio playback [0 (highest) - 256 (lowest)].
         /// </summary>
-        [field: Tooltip("Priority of the audio playback [0 - 256].")]
+        [field: Tooltip("Priority of the audio playback [0 (highest) - 256 (lowest)].")]
         [field: SerializeField]
         [field: Range(0, 256)]
         [PublicAPI]

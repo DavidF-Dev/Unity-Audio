@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Added Music scriptable object.
+- Added Spatial Audio Settings asset type for 3D spatialisation.
 - Added Playback properties for 3D spatialisation.
 - Added Playback property to ignore the audio listener.
 - Added Playback Finished and Paused event.

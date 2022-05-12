@@ -18,47 +18,78 @@ namespace DavidFDev.Audio
     [CreateAssetMenu(menuName = "DavidFDev/Audio/Sound Effect")]
     public sealed class SoundEffect : ScriptableObject
     {
-        #region Static Methods
+        #region Serialized Fields
 
-        /// <summary>
-        ///     Create a new sound effect instance via code.
-        /// </summary>
-        /// <param name="clips">A random clip is chosen when the sound effect is played.</param>
-        /// <param name="smartRandom">Prevents the same clip from being played twice in a row.</param>
-        /// <param name="output">Group that the audio playback should output to.</param>
-        /// <param name="minVolume">Minimum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.</param>
-        /// <param name="maxVolume">Maximum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.</param>
-        /// <param name="minPitch">Minimum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.</param>
-        /// <param name="maxPitch">Maximum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.</param>
-        /// <param name="loop">Whether the audio playback should loop.</param>
-        /// <param name="priority">Priority of the audio playback [0 - 256].</param>
-        /// <param name="stereoPan">Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].</param>
-        /// <param name="spatialBlend">
-        ///     Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0
-        ///     (3D)].
-        /// </param>
-        [PublicAPI]
+        [Tooltip("A random clip is chosen when the sound effect is played.")]
+        [SerializeField]
         [NotNull]
-        public static SoundEffect Create([NotNull] AudioClip[] clips, bool smartRandom = true,
-            [CanBeNull]
-            AudioMixerGroup output = null,
-            float minVolume = 1f, float maxVolume = 1f, float minPitch = 1f, float maxPitch = 1f,
-            bool loop = false, int priority = 128, float stereoPan = 0f, float spatialBlend = 0f)
-        {
-            var instance = CreateInstance<SoundEffect>();
-            instance.Clips = clips;
-            instance.SmartRandom = smartRandom;
-            instance.Output = output;
-            instance.MinVolume = Mathf.Clamp01(minVolume);
-            instance.MaxVolume = Mathf.Clamp01(maxVolume);
-            instance.MinPitch = Mathf.Clamp(minPitch, -3f, 3f);
-            instance.MaxPitch = Mathf.Clamp(maxPitch, -3f, 3f);
-            instance.Loop = loop;
-            instance.Priority = Mathf.Clamp(priority, 0, 256);
-            instance.StereoPan = Mathf.Clamp(stereoPan, -1f, 1f);
-            instance.SpatialBlend = Mathf.Clamp01(spatialBlend);
-            return instance;
-        }
+        private AudioClip[] clips = Array.Empty<AudioClip>();
+
+        [Tooltip("Prevents the same clip from being played twice in a row, if there is more than one.")]
+        [SerializeField]
+        private bool smartRandom = true;
+
+        [Space]
+        [Tooltip("Group that the audio playback should output to.")]
+        [SerializeField]
+        [CanBeNull]
+        private AudioMixerGroup output;
+
+        [Header("Volume")]
+        [Tooltip("Minimum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.")]
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float minVolume = 1f;
+
+        [Tooltip("Maximum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.")]
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float maxVolume = 1f;
+
+        [Header("Pitch")]
+        [Tooltip("Minimum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.")]
+        [SerializeField]
+        [Range(-3f, 3f)]
+        private float minPitch = 1f;
+
+        [Tooltip("Maximum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.")]
+        [SerializeField]
+        [Range(-3f, 3f)]
+        private float maxPitch = 1f;
+
+        [Space]
+        [Tooltip("Whether the audio playback should loop.\nIf looping, the playback must be stopped manually.")]
+        [SerializeField]
+        private bool loop;
+
+        [Tooltip("Priority of the audio playback [0 (highest) - 256 (lowest)].")]
+        [SerializeField]
+        [Range(0, 256)]
+        private int priority = 128;
+
+        [Tooltip("Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].")]
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float stereoPan;
+
+        [Tooltip("Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].")]
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float spatialBlend;
+
+        [Tooltip("Settings used to calculate 3D spatialisation.")]
+        [SerializeField]
+        [CanBeNull]
+        private SpatialAudioSettings spatialSettings;
+
+        [Space]
+        [Tooltip("Allows audio to play even though AudioListener.pause is set to true.")]
+        [SerializeField]
+        private bool ignoreListenerPause;
+
+        [Tooltip("Whether to take into account the volume of the audio listener.")]
+        [SerializeField]
+        private bool ignoreListenerVolume;
 
         #endregion
 
@@ -82,130 +113,145 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     A random clip is chosen when the sound effect is played.
         /// </summary>
-        [field: Tooltip("A random clip is chosen when the sound effect is played.")]
-        [field: SerializeField]
         [PublicAPI]
         [NotNull]
-        public AudioClip[] Clips { get; private set; } = Array.Empty<AudioClip>();
+        public AudioClip[] Clips
+        {
+            get => clips;
+            set => clips = value;
+        }
 
         /// <summary>
         ///     Prevents the same clip from being played twice in a row, if there is more than one.
         /// </summary>
-        [field: Tooltip("Prevents the same clip from being played twice in a row, if there is more than one.")]
-        [field: SerializeField]
         [PublicAPI]
-        public bool SmartRandom { get; private set; }
+        public bool SmartRandom
+        {
+            get => smartRandom;
+            set => smartRandom = value;
+        }
 
         /// <summary>
         ///     Group that the audio playback should output to.
         /// </summary>
-        [field: Space]
-        [field: Tooltip("Group that the audio playback should output to.")]
-        [field: SerializeField]
         [PublicAPI]
         [CanBeNull]
-        public AudioMixerGroup Output { get; private set; }
+        public AudioMixerGroup Output
+        {
+            get => output;
+            set => output = value;
+        }
 
         /// <summary>
         ///     Minimum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.
         /// </summary>
-        [field: Tooltip("Minimum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.")]
-        [field: Header("Volume")]
-        [field: SerializeField]
-        [field: Range(0f, 1f)]
         [PublicAPI]
-        public float MinVolume { get; private set; }
+        public float MinVolume
+        {
+            get => minVolume;
+            set => minVolume = Mathf.Clamp01(value);
+        }
 
         /// <summary>
         ///     Maximum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.
         /// </summary>
-        [field: Tooltip("Maximum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.")]
-        [field: SerializeField]
-        [field: Range(0f, 1f)]
         [PublicAPI]
-        public float MaxVolume { get; private set; }
+        public float MaxVolume
+        {
+            get => maxVolume;
+            set => maxVolume = Mathf.Clamp01(value);
+        }
 
         /// <summary>
         ///     Minimum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.
         /// </summary>
-        [field: Tooltip("Minimum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.")]
-        [field: Header("Pitch")]
-        [field: SerializeField]
-        [field: Range(-3f, 3f)]
         [PublicAPI]
-        public float MinPitch { get; private set; }
+        public float MinPitch
+        {
+            get => minPitch;
+            set => minPitch = Mathf.Clamp(value, -3f, 3f);
+        }
 
         /// <summary>
         ///     Maximum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.
         /// </summary>
-        [field: Tooltip("Maximum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.")]
-        [field: SerializeField]
-        [field: Range(-3f, 3f)]
         [PublicAPI]
-        public float MaxPitch { get; private set; }
+        public float MaxPitch
+        {
+            get => maxPitch;
+            set => maxPitch = Mathf.Clamp(value, -3f, 3f);
+        }
 
         /// <summary>
         ///     Whether the audio playback should loop.<br />
         ///     If looping, the playback must be stopped manually.
         /// </summary>
-        [field: Space]
-        [field: Tooltip("Whether the audio playback should loop.\nIf looping, the playback must be stopped manually.")]
-        [field: SerializeField]
         [PublicAPI]
-        public bool Loop { get; private set; }
+        public bool Loop
+        {
+            get => loop;
+            set => loop = value;
+        }
 
         /// <summary>
         ///     Priority of the audio playback [0 (highest) - 256 (lowest)].
         /// </summary>
-        [field: Tooltip("Priority of the audio playback [0 (highest) - 256 (lowest)].")]
-        [field: SerializeField]
-        [field: Range(0, 256)]
         [PublicAPI]
-        public int Priority { get; private set; }
+        public int Priority
+        {
+            get => priority;
+            set => priority = Mathf.Clamp(value, 0, 256);
+        }
 
         /// <summary>
         ///     Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].
         /// </summary>
-        [field: Tooltip("Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].")]
-        [field: SerializeField]
-        [field: Range(-1f, 1f)]
         [PublicAPI]
-        public float StereoPan { get; private set; }
+        public float StereoPan
+        {
+            get => stereoPan;
+            set => stereoPan = Mathf.Clamp(value, -1f, 1f);
+        }
 
         /// <summary>
         ///     Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].
         /// </summary>
-        [field:
-            Tooltip("Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].")]
-        [field: SerializeField]
-        [field: Range(0f, 1f)]
         [PublicAPI]
-        public float SpatialBlend { get; private set; }
+        public float SpatialBlend
+        {
+            get => spatialBlend;
+            set => spatialBlend = Mathf.Clamp01(value);
+        }
 
         /// <summary>
         ///     Settings used to calculate 3D spatialisation.
         /// </summary>
-        [field: Tooltip("Settings used to calculate 3D spatialisation.")]
-        [field: SerializeField]
         [PublicAPI] [CanBeNull]
-        public SpatialAudioSettings SpatialSettings { get; private set; }
+        public SpatialAudioSettings SpatialSettings
+        {
+            get => spatialSettings;
+            set => spatialSettings = value;
+        }
 
         /// <summary>
         ///     Allows audio to play even though AudioListener.pause is set to true.
         /// </summary>
-        [field: Space]
-        [field: Tooltip("Allows audio to play even though AudioListener.pause is set to true.")]
-        [field: SerializeField]
         [PublicAPI]
-        public bool IgnoreListenerPause { get; private set; }
+        public bool IgnoreListenerPause
+        {
+            get => ignoreListenerPause;
+            set => ignoreListenerPause = value;
+        }
 
         /// <summary>
         ///     Whether to take into account the volume of the audio listener.
         /// </summary>
-        [field: Tooltip("Whether to take into account the volume of the audio listener.")]
-        [field: SerializeField]
         [PublicAPI]
-        public bool IgnoreListenerVolume { get; private set; }
+        public bool IgnoreListenerVolume
+        {
+            get => ignoreListenerVolume;
+            set => ignoreListenerVolume = value;
+        }
 
         #endregion
 
@@ -213,13 +259,19 @@ namespace DavidFDev.Audio
 
         private void Reset()
         {
-            Clips = Array.Empty<AudioClip>();
-            SmartRandom = true;
-            MinVolume = 1f;
-            MaxVolume = 1f;
-            MinPitch = 1f;
-            MaxPitch = 1f;
-            Priority = 128;
+            clips = Array.Empty<AudioClip>();
+            smartRandom = true;
+            minVolume = 1f;
+            maxVolume = 1f;
+            minPitch = 1f;
+            maxPitch = 1f;
+            loop = false;
+            priority = 128;
+            stereoPan = 0f;
+            spatialBlend = 0f;
+            spatialSettings = null;
+            ignoreListenerPause = false;
+            ignoreListenerVolume = false;
         }
 
         #endregion
@@ -241,25 +293,25 @@ namespace DavidFDev.Audio
         [CanBeNull]
         internal AudioClip GetClipAtRandom()
         {
-            if (!Clips.Any())
+            if (!clips.Any())
             {
                 return null;
             }
 
-            if (Clips.Length == 1)
+            if (clips.Length == 1)
             {
-                return Clips.First();
+                return clips.First();
             }
 
             // If not smart random, return a truly random clip
-            if (!SmartRandom)
+            if (!smartRandom)
             {
-                return Clips[Random.Range(0, Clips.Length)];
+                return clips[Random.Range(0, clips.Length)];
             }
 
             // Determine choices for the random number generator (don't include the previously chosen clip index)
-            var choices = new List<int>(Clips.Length);
-            for (var i = 0; i < Clips.Length; i += 1)
+            var choices = new List<int>(clips.Length);
+            for (var i = 0; i < clips.Length; i += 1)
             {
                 if (i == _previousClipIndex)
                 {
@@ -273,7 +325,7 @@ namespace DavidFDev.Audio
             var clipIndex = choices[Random.Range(0, choices.Count)];
             _previousClipIndex = clipIndex;
 
-            return Clips[clipIndex];
+            return clips[clipIndex];
         }
 
         #endregion

@@ -14,31 +14,40 @@ namespace DavidFDev.Audio
     [CreateAssetMenu(menuName = "DavidFDev/Audio/Music")]
     public sealed class Music : ScriptableObject
     {
-        #region Static Methods
+        #region Serialized Fields
 
-        /// <summary>
-        ///     Create a new music instance via code.
-        /// </summary>
-        /// <param name="clip">Audio clip to play.</param>
-        /// <param name="output">Group that the audio playback should output to.</param>
-        /// <param name="volume">Volume of the audio playback [0.0 - 1.0].</param>
-        /// <param name="pitch">Pitch of the audio playback [-3.0 - 3.0].</param>
-        /// <param name="priority">Priority of the audio playback [0 - 256].</param>
-        /// <param name="stereoPan">Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].</param>
-        [PublicAPI]
-        [NotNull]
-        public static Music Create([CanBeNull] AudioClip clip, [CanBeNull] AudioMixerGroup output = null,
-            float volume = 1f, float pitch = 1f, int priority = 128, float stereoPan = 0f)
-        {
-            var instance = CreateInstance<Music>();
-            instance.Clip = clip;
-            instance.Output = output;
-            instance.Volume = Mathf.Clamp01(volume);
-            instance.Pitch = Mathf.Clamp01(pitch);
-            instance.Priority = Mathf.Clamp(priority, 0, 256);
-            instance.StereoPan = Mathf.Clamp(stereoPan, -1f, 1f);
-            return instance;
-        }
+        [Tooltip("Audio clip to play.")]
+        [SerializeField]
+        [CanBeNull]
+        private AudioClip clip;
+
+        [Space]
+        [Tooltip("Group that the audio playback should output to.")]
+        [SerializeField]
+        [CanBeNull]
+        private AudioMixerGroup output;
+
+        [Space]
+        [Tooltip("Volume of the audio playback [0.0 - 1.0].")]
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float volume = 1f;
+
+        [Tooltip("Pitch of the audio playback [-3.0 - 3.0].")]
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float pitch = 1f;
+
+        [Space]
+        [Tooltip("Priority of the audio playback [0 (highest) - 256 (lowest)].")]
+        [SerializeField]
+        [Range(0, 256)]
+        private int priority = 128;
+
+        [Tooltip("Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].")]
+        [SerializeField]
+        [Range(-1f, 1f)]
+        private float stereoPan;
 
         #endregion
 
@@ -55,56 +64,64 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Audio clip to play.
         /// </summary>
-        [field: Tooltip("Audio clip to play.")]
-        [field: SerializeField]
         [PublicAPI]
         [CanBeNull]
-        public AudioClip Clip { get; private set; }
+        public AudioClip Clip
+        {
+            get => clip;
+            set => clip = value;
+        }
 
         /// <summary>
         ///     Group that the audio playback should output to.
         /// </summary>
-        [field: Space]
-        [field: Tooltip("Group that the audio playback should output to.")]
-        [field: SerializeField]
         [PublicAPI]
         [CanBeNull]
-        public AudioMixerGroup Output { get; private set; }
-        
+        public AudioMixerGroup Output
+        {
+            get => output;
+            set => output = value;
+        }
+
         /// <summary>
         ///     Volume of the audio playback [0.0 - 1.0].
         /// </summary>
-        [field: Space]
-        [field: Tooltip("Volume of the audio playback [0.0 - 1.0].")]
-        [field: SerializeField]
         [PublicAPI]
-        public float Volume { get; private set; }
-        
+        public float Volume
+        {
+            get => volume;
+            set => volume = Mathf.Clamp01(value);
+        }
+
         /// <summary>
         ///     Pitch of the audio playback [-3.0 - 3.0].
         /// </summary>
-        [field: Tooltip("Pitch of the audio playback [-3.0 - 3.0].")]
-        [field: SerializeField]
         [PublicAPI]
-        public float Pitch { get; private set; }
+        public float Pitch
+        {
+            get => pitch;
+            set => pitch = Mathf.Clamp01(value);
+        }
 
         /// <summary>
         ///     Priority of the audio playback [0 (highest) - 256 (lowest)].
         /// </summary>
-        [field: Tooltip("Priority of the audio playback [0 (highest) - 256 (lowest)].")]
-        [field: SerializeField]
-        [field: Range(0, 256)]
         [PublicAPI]
-        public int Priority { get; private set; }
+        public int Priority
+        {
+            get => priority;
+            set => priority = Mathf.Clamp(value, 0, 256);
+        }
 
         /// <summary>
         ///     Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].
         /// </summary>
-        [field: Tooltip("Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].")]
-        [field: SerializeField]
-        [field: Range(-1f, 1f)]
         [PublicAPI]
-        public float StereoPan { get; private set; }
+        public float StereoPan
+        {
+            get => stereoPan;
+            set => stereoPan = Mathf.Clamp(value, -1f, 1f);
+        }
 
         #endregion
 
@@ -117,6 +134,7 @@ namespace DavidFDev.Audio
             Volume = 1f;
             Pitch = 1f;
             Priority = 128;
+            StereoPan = 0f;
         }
 
         #endregion

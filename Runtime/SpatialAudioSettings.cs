@@ -28,7 +28,7 @@ namespace DavidFDev.Audio
         [Tooltip("Doppler scale for 3D spatialisation [0.0 - 5.0].")]
         [SerializeField]
         [Range(0f, 5f)]
-        private float dopplerLevel;
+        private float dopplerLevel = 1f;
 
         [Tooltip("Spread angle (in degrees) of a 3D stereo or multichannel sound in speaker space [0.0 - 360.0].")]
         [SerializeField]
@@ -42,13 +42,21 @@ namespace DavidFDev.Audio
         [Tooltip("Within the minimum distance the audio source will cease to grow louder in volume.")]
         [SerializeField]
         [Min(0f)]
-        private float minDistance;
+        private float minDistance = 1f;
 
         [Tooltip(
             "Logarithmic rolloff: Distance at which the sound stops attenuating.\nLinear rolloff: Distance at which the sound is completely inaudible.")]
         [SerializeField]
         [Min(0f)]
-        private float maxDistance;
+        private float maxDistance = 500f;
+
+        #endregion
+
+        #region Constructors
+
+        private SpatialAudioSettings()
+        {
+        }
 
         #endregion
 
@@ -110,14 +118,11 @@ namespace DavidFDev.Audio
 
         #region Unity Methods
 
-        private void Awake()
-        {
-            Reset();
-        }
-
         private void Reset()
         {
             dopplerLevel = 1f;
+            spread = 0f;
+            rolloffMode = SpatialRolloffMode.Logarithmic;
             minDistance = 1f;
             maxDistance = 500f;
         }

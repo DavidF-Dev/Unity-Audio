@@ -104,7 +104,8 @@ namespace DavidFDev.Audio
         }
 
         /// <summary>
-        ///     Whether the audio playback should loop.
+        ///     Whether the audio playback should loop.<br />
+        ///     If looping, the playback must be stopped manually
         /// </summary>
         [PublicAPI]
         public bool Loop
@@ -114,7 +115,7 @@ namespace DavidFDev.Audio
         }
 
         /// <summary>
-        ///     Priority of the audio playback [0 - 256].
+        ///     Priority of the audio playback [0 (highest) - 256 (lowest)].
         /// </summary>
         [PublicAPI]
         public int Priority

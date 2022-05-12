@@ -9,16 +9,20 @@ namespace DavidFDev.Audio
     [CreateAssetMenu(menuName = "DavidFDev/Audio/Spatial Audio Settings")]
     public sealed class SpatialAudioSettings : ScriptableObject
     {
+        #region Enums
+
         [PublicAPI]
         public enum SpatialRolloffMode
         {
             [InspectorName("Logarithmic Rolloff")]
             Logarithmic,
-            
+
             [InspectorName("Linear Rolloff")]
             Linear
         }
-        
+
+        #endregion
+
         #region Serialized Fields
 
         [Tooltip("Doppler scale for 3D spatialisation [0.0 - 5.0].")]

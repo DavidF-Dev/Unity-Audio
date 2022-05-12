@@ -89,9 +89,9 @@ namespace DavidFDev.Audio
         public AudioClip[] Clips { get; private set; } = Array.Empty<AudioClip>();
 
         /// <summary>
-        ///     Prevents the same clip from being played twice in a row.
+        ///     Prevents the same clip from being played twice in a row, if there is more than one.
         /// </summary>
-        [field: Tooltip("Prevents the same clip from being played twice in a row.")]
+        [field: Tooltip("Prevents the same clip from being played twice in a row, if there is more than one.")]
         [field: SerializeField]
         [PublicAPI]
         public bool SmartRandom { get; private set; }

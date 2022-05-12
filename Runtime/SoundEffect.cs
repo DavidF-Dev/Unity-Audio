@@ -99,6 +99,7 @@ namespace DavidFDev.Audio
         ///     Group that the audio playback should output to.
         /// </summary>
         [field: Space]
+        [field: Tooltip("Group that the audio playback should output to.")]
         [field: SerializeField]
         [PublicAPI]
         [CanBeNull]
@@ -107,6 +108,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Minimum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.
         /// </summary>
+        [field: Tooltip("Minimum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.")]
         [field: Header("Volume")]
         [field: SerializeField]
         [field: Range(0f, 1f)]
@@ -116,6 +118,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Maximum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.
         /// </summary>
+        [field: Tooltip("Maximum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.")]
         [field: SerializeField]
         [field: Range(0f, 1f)]
         [PublicAPI]
@@ -124,6 +127,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Minimum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.
         /// </summary>
+        [field: Tooltip("Minimum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.")]
         [field: Header("Pitch")]
         [field: SerializeField]
         [field: Range(-3f, 3f)]
@@ -133,6 +137,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Maximum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.
         /// </summary>
+        [field: Tooltip("Maximum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.")]
         [field: SerializeField]
         [field: Range(-3f, 3f)]
         [PublicAPI]
@@ -142,6 +147,7 @@ namespace DavidFDev.Audio
         ///     Whether the audio playback should loop.
         /// </summary>
         [field: Space]
+        [field: Tooltip("Whether the audio playback should loop.")]
         [field: SerializeField]
         [PublicAPI]
         public bool Loop { get; private set; }
@@ -149,6 +155,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Priority of the audio playback [0 - 256].
         /// </summary>
+        [field: Tooltip("Priority of the audio playback [0 - 256].")]
         [field: SerializeField]
         [field: Range(0, 256)]
         [PublicAPI]
@@ -157,6 +164,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].
         /// </summary>
+        [field: Tooltip("Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].")]
         [field: SerializeField]
         [field: Range(-1f, 1f)]
         [PublicAPI]
@@ -165,11 +173,21 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].
         /// </summary>
+        [field:
+            Tooltip("Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].")]
         [field: SerializeField]
         [field: Range(0f, 1f)]
         [PublicAPI]
         public float SpatialBlend { get; private set; }
-        
+
+        /// <summary>
+        ///     Settings used to calculate 3D spatialisation.
+        /// </summary>
+        [field: Tooltip("Settings used to calculate 3D spatialisation.")]
+        [field: SerializeField]
+        [PublicAPI] [CanBeNull]
+        public SpatialAudioSettings SpatialSettings { get; private set; }
+
         /// <summary>
         ///     Allows audio to play even though AudioListener.pause is set to true.
         /// </summary>
@@ -178,7 +196,7 @@ namespace DavidFDev.Audio
         [field: SerializeField]
         [PublicAPI]
         public bool IgnoreListenerPause { get; private set; }
-        
+
         /// <summary>
         ///     Whether to take into account the volume of the audio listener.
         /// </summary>

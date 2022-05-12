@@ -31,6 +31,9 @@ namespace DavidFDev.Audio
         private static MonoBehaviour _mono = null!;
 
         [NotNull]
+        private static SpatialAudioSettings _fallbackSpatialSettings = null!;
+
+        [NotNull]
         private static readonly Dictionary<AudioSource, Playback> Current = new Dictionary<AudioSource, Playback>();
 
         [NotNull]
@@ -86,7 +89,8 @@ namespace DavidFDev.Audio
         /// <returns>Playback instance for controlling the audio.</returns>
         [PublicAPI] [CanBeNull]
         public static Playback Play([CanBeNull] AudioClip clip, Vector3 position = default,
-            [CanBeNull] AudioMixerGroup output = null)
+            [CanBeNull]
+            AudioMixerGroup output = null)
         {
             if (clip == null)
             {
@@ -111,11 +115,14 @@ namespace DavidFDev.Audio
             playback.Priority = 128;
             playback.StereoPan = 0f;
             playback.SpatialBlend = PlaybackDefaults.SpatialBlend;
-            playback.Doppler = PlaybackDefaults.Doppler;
-            playback.Spread = PlaybackDefaults.Spread;
-            playback.RolloffMode = PlaybackDefaults.RolloffMode;
-            playback.MinDistance = PlaybackDefaults.MinDistance;
-            playback.MaxDistance = PlaybackDefaults.MaxDistance;
+            var spatialSettings = PlaybackDefaults.SpatialSettings != null
+                ? PlaybackDefaults.SpatialSettings
+                : _fallbackSpatialSettings;
+            playback.Doppler = spatialSettings.Doppler;
+            playback.Spread = spatialSettings.Spread;
+            playback.RolloffMode = spatialSettings.RolloffMode;
+            playback.MaxDistance = spatialSettings.MaxDistance;
+            playback.MinDistance = spatialSettings.MinDistance;
             playback.Position = position;
             playback.InternalFinished += () =>
             {
@@ -126,7 +133,7 @@ namespace DavidFDev.Audio
             };
 
             source.Play();
-            
+
             // This coroutine will invoke the playback's Finished event when playback finishes
             _mono.StartCoroutine(playback.C_WaitForFinish());
 
@@ -146,7 +153,8 @@ namespace DavidFDev.Audio
         /// <returns>Playback instance for controlling the audio.</returns>
         [PublicAPI] [CanBeNull]
         public static Playback Play([NotNull] string path, Vector3 position = default,
-            [CanBeNull] AudioMixerGroup output = null)
+            [CanBeNull]
+            AudioMixerGroup output = null)
         {
             return Play(TryGetClipFromResource(path), position, output);
         }
@@ -185,6 +193,16 @@ namespace DavidFDev.Audio
             playback.Priority = asset.Priority;
             playback.StereoPan = asset.StereoPan;
             playback.SpatialBlend = asset.SpatialBlend;
+            var spatialSettings = asset.SpatialSettings != null
+                ? asset.SpatialSettings
+                : PlaybackDefaults.SpatialSettings != null
+                    ? PlaybackDefaults.SpatialSettings
+                    : _fallbackSpatialSettings;
+            playback.Doppler = spatialSettings.Doppler;
+            playback.Spread = spatialSettings.Spread;
+            playback.RolloffMode = spatialSettings.RolloffMode;
+            playback.MaxDistance = spatialSettings.MaxDistance;
+            playback.MinDistance = spatialSettings.MinDistance;
             playback.IgnoreListenerPause = asset.IgnoreListenerPause;
             playback.IgnoreListenerVolume = asset.IgnoreListenerVolume;
             return playback;
@@ -477,6 +495,9 @@ namespace DavidFDev.Audio
             Debug.Log("Created audio pool game object.");
 #endif
 
+            PlaybackDefaults.SpatialSettings = ScriptableObject.CreateInstance<SpatialAudioSettings>();
+            _fallbackSpatialSettings = ScriptableObject.CreateInstance<SpatialAudioSettings>();
+
             // Create audio sources for music playback and fading
             {
                 _musicPlayback = new GameObject("Music Playback").AddComponent<AudioSource>();
@@ -626,7 +647,8 @@ namespace DavidFDev.Audio
         }
 
         private static IEnumerator SimpleLerp<T>([NotNull] T start, [NotNull] T end, float duration,
-            [NotNull] Func<T, T, float, T> lerpFunction, [NotNull] Action<T> onUpdate, [CanBeNull] Action onComplete)
+            [NotNull]
+            Func<T, T, float, T> lerpFunction, [NotNull] Action<T> onUpdate, [CanBeNull] Action onComplete)
         {
             for (float t = 0; t <= duration; t += Time.deltaTime)
             {
@@ -655,14 +677,6 @@ namespace DavidFDev.Audio
             private static float _pitch = 1f;
 
             private static float _spatialBlend;
-
-            private static float _doppler = 1f;
-
-            private static float _spread;
-
-            private static float _minDistance = 1f;
-
-            private static float _maxDistance = 500f;
 
             #endregion
 
@@ -699,56 +713,10 @@ namespace DavidFDev.Audio
             }
 
             /// <summary>
-            ///     Doppler scale for 3D spatialisation [0.0 - 5.0].<br />
-            ///     Used in 3D spatialisation calculations.
+            ///     Settings used to calculate 3D spatialisation.
             /// </summary>
-            [PublicAPI]
-            public static float Doppler
-            {
-                get => _doppler;
-                set => _doppler = Mathf.Clamp(value, 0, 5);
-            }
-
-            /// <summary>
-            ///     Spread angle (in degrees) of a 3D stereo or multichannel sound in speaker space [0.0 - 360.0].<br />
-            ///     Used in 3D spatialisation calculations.
-            /// </summary>
-            [PublicAPI]
-            public static float Spread
-            {
-                get => _spread;
-                set => _spread = Mathf.Clamp(value, 0, 360);
-            }
-
-            /// <summary>
-            ///     How the audio source attenuates over distance.<br />
-            ///     Used in 3D spatialisation calculations.
-            /// </summary>
-            [PublicAPI]
-            public static AudioRolloffMode RolloffMode { get; set; }
-
-            /// <summary>
-            ///     Within the minimum distance the audio source will cease to grow louder in volume.<br />
-            ///     Used in 3D spatialisation calculations.
-            /// </summary>
-            [PublicAPI]
-            public static float MinDistance
-            {
-                get => _minDistance;
-                set => _minDistance = Mathf.Max(value, 0f);
-            }
-
-            /// <summary>
-            ///     Logarithmic rolloff: Distance at which the sound stops attenuating.<br />
-            ///     Linear rolloff: Distance at which the sound is completely inaudible.<br />
-            ///     Used in 3D spatialisation calculations.
-            /// </summary>
-            [PublicAPI]
-            public static float MaxDistance
-            {
-                get => _maxDistance;
-                set => _maxDistance = Mathf.Max(value, 0f);
-            }
+            [PublicAPI] [CanBeNull]
+            public static SpatialAudioSettings SpatialSettings { get; set; }
 
             #endregion
         }
@@ -761,11 +729,7 @@ namespace DavidFDev.Audio
         {
             #region Static Fields and Constants
 
-            #region Static fields
-
             private static float _targetVolume = 1f;
-
-            #endregion
 
             #endregion
 

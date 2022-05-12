@@ -21,25 +21,20 @@ namespace DavidFDev.Audio
         /// </summary>
         /// <param name="clip">Audio clip to play.</param>
         /// <param name="output">Group that the audio playback should output to.</param>
-        /// <param name="minVolume">Minimum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.</param>
-        /// <param name="maxVolume">Maximum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.</param>
-        /// <param name="minPitch">Minimum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.</param>
-        /// <param name="maxPitch">Maximum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.</param>
+        /// <param name="volume">Volume of the audio playback [0.0 - 1.0].</param>
+        /// <param name="pitch">Pitch of the audio playback [-3.0 - 3.0].</param>
         /// <param name="priority">Priority of the audio playback [0 - 256].</param>
         /// <param name="stereoPan">Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].</param>
         [PublicAPI]
         [NotNull]
         public static Music Create([CanBeNull] AudioClip clip, [CanBeNull] AudioMixerGroup output = null,
-            float minVolume = 1f,
-            float maxVolume = 1f, float minPitch = 1f, float maxPitch = 1f, int priority = 128, float stereoPan = 0f)
+            float volume = 1f, float pitch = 1f, int priority = 128, float stereoPan = 0f)
         {
             var instance = CreateInstance<Music>();
             instance.Clip = clip;
             instance.Output = output;
-            instance.MinVolume = Mathf.Clamp01(minVolume);
-            instance.MaxVolume = Mathf.Clamp01(maxVolume);
-            instance.MinPitch = Mathf.Clamp01(minPitch);
-            instance.MaxPitch = Mathf.Clamp01(maxPitch);
+            instance.Volume = Mathf.Clamp01(volume);
+            instance.Pitch = Mathf.Clamp01(pitch);
             instance.Priority = Mathf.Clamp(priority, 0, 256);
             instance.StereoPan = Mathf.Clamp(stereoPan, -1f, 1f);
             return instance;
@@ -60,6 +55,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Audio clip to play.
         /// </summary>
+        [field: Tooltip("Audio clip to play.")]
         [field: SerializeField]
         [PublicAPI]
         [CanBeNull]
@@ -69,48 +65,33 @@ namespace DavidFDev.Audio
         ///     Group that the audio playback should output to.
         /// </summary>
         [field: Space]
+        [field: Tooltip("Group that the audio playback should output to.")]
         [field: SerializeField]
         [PublicAPI]
         [CanBeNull]
         public AudioMixerGroup Output { get; private set; }
-
+        
         /// <summary>
-        ///     Minimum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.
+        ///     Volume of the audio playback [0.0 - 1.0].
         /// </summary>
-        [field: Header("Volume")]
+        [field: Space]
+        [field: Tooltip("Volume of the audio playback [0.0 - 1.0].")]
         [field: SerializeField]
-        [field: Range(0f, 1f)]
         [PublicAPI]
-        public float MinVolume { get; private set; }
-
+        public float Volume { get; private set; }
+        
         /// <summary>
-        ///     Maximum possible volume of the audio playback [0.0 - 1.0]. Volume is chosen randomly.
+        ///     Pitch of the audio playback [-3.0 - 3.0].
         /// </summary>
+        [field: Tooltip("Pitch of the audio playback [-3.0 - 3.0].")]
         [field: SerializeField]
-        [field: Range(0f, 1f)]
         [PublicAPI]
-        public float MaxVolume { get; private set; }
+        public float Pitch { get; private set; }
 
         /// <summary>
-        ///     Minimum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.
+        ///     Priority of the audio playback [0 (highest) - 256 (lowest)].
         /// </summary>
-        [field: Header("Pitch")]
-        [field: SerializeField]
-        [field: Range(-3f, 3f)]
-        [PublicAPI]
-        public float MinPitch { get; private set; }
-
-        /// <summary>
-        ///     Maximum pitch of the audio playback [-3.0 - 3.0]. Pitch is chosen randomly.
-        /// </summary>
-        [field: SerializeField]
-        [field: Range(-3f, 3f)]
-        [PublicAPI]
-        public float MaxPitch { get; private set; }
-
-        /// <summary>
-        ///     Priority of the audio playback [0 - 256].
-        /// </summary>
+        [field: Tooltip("Priority of the audio playback [0 (highest) - 256 (lowest)].")]
         [field: SerializeField]
         [field: Range(0, 256)]
         [PublicAPI]
@@ -119,6 +100,7 @@ namespace DavidFDev.Audio
         /// <summary>
         ///     Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].
         /// </summary>
+        [field: Tooltip("Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].")]
         [field: SerializeField]
         [field: Range(-1f, 1f)]
         [PublicAPI]
@@ -132,10 +114,8 @@ namespace DavidFDev.Audio
         {
             Clip = null;
             Output = null;
-            MinVolume = 1f;
-            MaxVolume = 1f;
-            MinPitch = 1f;
-            MaxPitch = 1f;
+            Volume = 1f;
+            Pitch = 1f;
             Priority = 128;
         }
 

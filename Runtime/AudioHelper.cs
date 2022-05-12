@@ -360,8 +360,8 @@ namespace DavidFDev.Audio
 
             PlayMusic(asset.Clip, fadeIn, fadeOut);
             MusicPlayback.Output = asset.Output;
-            MusicPlayback.Volume = Random.Range(asset.MinVolume, asset.MaxVolume);
-            MusicPlayback.Pitch = Random.Range(asset.MinPitch, asset.MaxPitch);
+            MusicPlayback.Volume = asset.Volume;
+            MusicPlayback.Pitch = asset.Pitch;
             MusicPlayback.Priority = asset.Priority;
             MusicPlayback.StereoPan = asset.StereoPan;
         }

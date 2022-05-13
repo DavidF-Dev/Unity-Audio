@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Playback property to ignore the audio listener.
 - Added Playback Finished and Paused event.
 - Added helper method to convert db to 0-1 range logarithmically.
+- Added editor context/menu actions for controlling playback.
 - Replaced SoundEffect constructor with static method.
 - Renamed Audio.cs to AudioHelper.cs.
 

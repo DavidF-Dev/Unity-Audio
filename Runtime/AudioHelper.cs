@@ -14,6 +14,9 @@ using UnityEngine;
 using UnityEngine.Audio;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace DavidFDev.Audio
 {
@@ -686,6 +689,32 @@ namespace DavidFDev.Audio
 
             onUpdate(end);
             onComplete?.Invoke();
+        }
+
+#if UNITY_EDITOR
+        [MenuItem("Tools/DavidFDev/Audio/Stop All Audio (Runtime)")]
+#endif
+        private static void StopAllMenuItem()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+            
+            StopAllAudio(true);
+        }
+
+#if UNITY_EDITOR
+        [MenuItem("Tools/DavidFDev/Audio/Stop All Audio and Destroy Objects (Runtime)")]
+#endif
+        private static void StopAllAndDestroyMenuItem()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+            
+            StopAllAudio(true, true);
         }
 
         #endregion

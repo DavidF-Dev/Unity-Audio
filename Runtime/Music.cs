@@ -20,9 +20,9 @@ namespace DavidFDev.Audio
         #region Static Methods
 
 #if UNITY_EDITOR
-        [MenuItem("Tools/DavidFDev/Audio/Stop All Music (Runtime)")]
+        [MenuItem("Tools/DavidFDev/Audio/Stop Music (Runtime)")]
 #endif
-        private static void StopAllMenuItem()
+        private static void StopMenuItem()
         {
             if (!Application.isPlaying)
             {
@@ -251,10 +251,10 @@ namespace DavidFDev.Audio
             AudioHelper.StopMusic();
         }
 
-        [ContextMenu("Stop All Music (Runtime)")]
-        private void StopAllContextMenu()
+        [ContextMenu("Stop Any Music (Runtime)")]
+        private void StopAnyContextMenu()
         {
-            StopAllMenuItem();
+            StopMenuItem();
         }
 
         #endregion

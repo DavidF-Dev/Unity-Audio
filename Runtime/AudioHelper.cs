@@ -312,6 +312,7 @@ namespace DavidFDev.Audio
             // Start the new music playback
             _musicPlayback.Stop();
             _musicPlayback.clip = music;
+            _musicPlayback.volume = 0f;
             _musicPlayback.Play();
 
 #if DEBUG_AUDIO

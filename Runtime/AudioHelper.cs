@@ -274,6 +274,8 @@ namespace DavidFDev.Audio
                 _musicFader.pitch = _musicPlayback.pitch;
                 _musicFader.panStereo = _musicPlayback.panStereo;
                 _musicFader.timeSamples = _musicPlayback.timeSamples;
+                _musicFader.ignoreListenerPause = _musicPlayback.ignoreListenerPause;
+                _musicFader.ignoreListenerVolume = _musicPlayback.ignoreListenerVolume;
                 _musicFader.Play();
 
                 // If there is fading happening already, forcefully stop it

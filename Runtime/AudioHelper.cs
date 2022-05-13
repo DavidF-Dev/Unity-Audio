@@ -231,8 +231,9 @@ namespace DavidFDev.Audio
         /// <param name="music">Music to play.</param>
         /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
         /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
+        /// <param name="fadeInVolume">Volume that the music should fade in to [0.0 - 1.0].</param>
         [PublicAPI]
-        public static void PlayMusic([CanBeNull] AudioClip music, float fadeIn = 1f, float fadeOut = 0.75f)
+        public static void PlayMusic([CanBeNull] AudioClip music, float fadeIn = 1f, float fadeOut = 0.75f, float? fadeInVolume = null)
         {
 #if DEBUG_AUDIO
             static string GetAudioClipName(AudioSource source)
@@ -257,6 +258,7 @@ namespace DavidFDev.Audio
                 _musicFader.Stop();
                 _musicFader.clip = _musicPlayback.clip;
                 _musicFader.outputAudioMixerGroup = _musicPlayback.outputAudioMixerGroup;
+                _musicFader.volume = 0f;
                 _musicFader.pitch = _musicPlayback.pitch;
                 _musicFader.panStereo = _musicPlayback.panStereo;
                 _musicFader.Play();
@@ -266,6 +268,7 @@ namespace DavidFDev.Audio
                 if (_musicFadeOut != null)
                 {
                     _mono.StopCoroutine(_musicFadeOut);
+                    _musicFadeOut = null;
                 }
 
                 _musicFadeOut = _mono.StartCoroutine(SimpleLerp(_musicPlayback.volume, 0f, fadeOut, Mathf.Lerp,
@@ -310,6 +313,13 @@ namespace DavidFDev.Audio
                 if (_musicFadeIn != null)
                 {
                     _mono.StopCoroutine(_musicFadeIn);
+                    _musicFadeIn = null;
+                }
+
+                // Set the volume for the new music playback if one is provided
+                if (fadeInVolume.HasValue)
+                {
+                    MusicPlayback.Volume = fadeInVolume.Value;
                 }
 
                 _musicFadeIn = _mono.StartCoroutine(SimpleLerp(0f, MusicPlayback.Volume, fadeIn, Mathf.Lerp,
@@ -328,8 +338,9 @@ namespace DavidFDev.Audio
         /// <param name="path">Path to the music to play.</param>
         /// <param name="fadeIn">Duration, in seconds, that the music should take to fade in.</param>
         /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
+        /// <param name="fadeInVolume">Volume that the music should fade in to [0.0 - 1.0].</param>
         [PublicAPI]
-        public static void PlayMusic([NotNull] string path, float fadeIn = 1f, float fadeOut = 0.75f)
+        public static void PlayMusic([NotNull] string path, float fadeIn = 1f, float fadeOut = 0.75f, float? fadeInVolume = null)
         {
             var music = TryGetClipFromResource(path);
 
@@ -339,7 +350,7 @@ namespace DavidFDev.Audio
                 return;
             }
 
-            PlayMusic(music, fadeIn, fadeOut);
+            PlayMusic(music, fadeIn, fadeOut, fadeInVolume);
         }
 
         /// <summary>
@@ -358,9 +369,8 @@ namespace DavidFDev.Audio
                 return;
             }
 
-            PlayMusic(asset.Clip, fadeIn, fadeOut);
+            PlayMusic(asset.Clip, fadeIn, fadeOut, asset.Volume);
             MusicPlayback.Output = asset.Output;
-            MusicPlayback.Volume = asset.Volume;
             MusicPlayback.Pitch = asset.Pitch;
             MusicPlayback.Priority = asset.Priority;
             MusicPlayback.StereoPan = asset.StereoPan;
@@ -758,13 +768,14 @@ namespace DavidFDev.Audio
                 get => _targetVolume;
                 set
                 {
-                    if (IsMusicFading)
+                    if (_musicFadeIn != null)
                     {
-                        _targetVolume = Mathf.Clamp01(value);
+                        _targetVolume = value;
+                        Debug.LogWarning($"Attempting to set the {nameof(MusicPlayback)}.{nameof(Volume)} property during a music fade-in can have unexpected results.");
                         return;
                     }
 
-                    _musicPlayback.volume = _musicFader.volume = _targetVolume = Mathf.Clamp01(value);
+                    _musicPlayback.volume = _targetVolume = Mathf.Clamp01(value);
                 }
             }
 

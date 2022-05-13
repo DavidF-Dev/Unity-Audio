@@ -16,15 +16,25 @@ namespace DavidFDev.Audio
         #region Properties
 
         /// <summary>
-        ///     Music to play.
+        ///     Audio clip to play. Trumps the music asset.
         /// </summary>
+        [field: Tooltip("Audio clip to play. Trumps the music asset.")]
         [field: SerializeField]
         [PublicAPI] [CanBeNull]
-        public AudioClip Music { get; protected set; }
+        public AudioClip MusicClip { get; protected set; }
+        
+        /// <summary>
+        ///     Music asset to play if no audio clip is provided.
+        /// </summary>
+        [field: Tooltip("Music asset to play if no audio clip is provided.")]
+        [field: SerializeField]
+        [PublicAPI, CanBeNull]
+        public Music MusicAsset { get; protected set; }
 
         /// <summary>
         ///     Whether the music should be played automatically when the component awakens.
         /// </summary>
+        [field: Tooltip("Whether the music should be played automatically when the component awakens.")]
         [field: SerializeField]
         [PublicAPI]
         public bool PlayOnAwake { get; set; } = true;
@@ -63,7 +73,18 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void PlayMusic()
         {
-            AudioHelper.PlayMusic(Music, FadeInDuration, FadeOutDuration);
+            if (MusicClip != null)
+            {
+                AudioHelper.PlayMusic(MusicClip, FadeInDuration, FadeOutDuration);
+                return;
+            }
+
+            if (MusicAsset == null)
+            {
+                return;
+            }
+
+            AudioHelper.PlayMusicAsset(MusicAsset, FadeInDuration, FadeOutDuration);
         }
 
         /// <summary>
@@ -72,7 +93,12 @@ namespace DavidFDev.Audio
         [PublicAPI]
         public void StopMusic()
         {
-            if (AudioHelper.CurrentMusic != Music)
+            var clip = MusicClip != null
+                ? MusicClip
+                : MusicAsset != null
+                    ? MusicAsset.Clip
+                    : null;
+            if (clip == null || AudioHelper.CurrentMusic != clip)
             {
                 return;
             }

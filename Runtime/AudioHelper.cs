@@ -233,7 +233,8 @@ namespace DavidFDev.Audio
         /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
         /// <param name="fadeInVolume">Volume that the music should fade in to [0.0 - 1.0].</param>
         [PublicAPI]
-        public static void PlayMusic([CanBeNull] AudioClip music, float fadeIn = 1f, float fadeOut = 0.75f, float? fadeInVolume = null)
+        public static void PlayMusic([CanBeNull] AudioClip music, float fadeIn = 1f, float fadeOut = 0.75f,
+            float? fadeInVolume = null)
         {
 #if DEBUG_AUDIO
             static string GetAudioClipName(AudioSource source)
@@ -340,7 +341,8 @@ namespace DavidFDev.Audio
         /// <param name="fadeOut">Duration, in seconds, that the old music should take to fade out.</param>
         /// <param name="fadeInVolume">Volume that the music should fade in to [0.0 - 1.0].</param>
         [PublicAPI]
-        public static void PlayMusic([NotNull] string path, float fadeIn = 1f, float fadeOut = 0.75f, float? fadeInVolume = null)
+        public static void PlayMusic([NotNull] string path, float fadeIn = 1f, float fadeOut = 0.75f,
+            float? fadeInVolume = null)
         {
             var music = TryGetClipFromResource(path);
 
@@ -771,7 +773,8 @@ namespace DavidFDev.Audio
                     if (_musicFadeIn != null)
                     {
                         _targetVolume = value;
-                        Debug.LogWarning($"Attempting to set the {nameof(MusicPlayback)}.{nameof(Volume)} property during a music fade-in can have unexpected results.");
+                        Debug.LogWarning(
+                            $"Attempting to set the {nameof(MusicPlayback)}.{nameof(Volume)} property during a music fade-in can have unexpected results.");
                         return;
                     }
 

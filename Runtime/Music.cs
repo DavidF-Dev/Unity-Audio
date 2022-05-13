@@ -2,6 +2,7 @@
 // Purpose: Create a music asset that can be played at any time.
 // Created by: DavidFDev
 
+using System;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -145,6 +146,12 @@ namespace DavidFDev.Audio
 
         #endregion
 
+        #region Events
+
+        public event Action Played;
+
+        #endregion
+
         #region Unity Methods
 
         private void Reset()
@@ -187,6 +194,18 @@ namespace DavidFDev.Audio
         public void Play(float fadeIn = 1f, float fadeOut = 0.75f)
         {
             AudioHelper.PlayMusicAsset(this, fadeIn, fadeOut);
+        }
+
+        internal void InvokePlayed()
+        {
+            try
+            {
+                Played?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         [ContextMenu("Play Music (Runtime)")]

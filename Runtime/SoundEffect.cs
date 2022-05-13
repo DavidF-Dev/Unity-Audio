@@ -255,6 +255,12 @@ namespace DavidFDev.Audio
 
         #endregion
 
+        #region Events
+
+        public event Action Played;
+
+        #endregion
+
         #region Unity Methods
 
         private void Reset()
@@ -328,6 +334,18 @@ namespace DavidFDev.Audio
             return clips[clipIndex];
         }
 
+        internal void InvokePlayed()
+        {
+            try
+            {
+                Played?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
         [ContextMenu("Play Sound Effect @ Listener (Runtime)")]
         private void PlayListenerContextMenu()
         {
@@ -344,7 +362,7 @@ namespace DavidFDev.Audio
 
             Play(listener.transform.position);
         }
-        
+
         [ContextMenu("Play Sound Effect @ 0,0,0 (Runtime)")]
         private void PlayDefaultContextMenu()
         {
@@ -375,7 +393,7 @@ namespace DavidFDev.Audio
 
             Play(pos);
         }
-        
+
         #endregion
     }
 }

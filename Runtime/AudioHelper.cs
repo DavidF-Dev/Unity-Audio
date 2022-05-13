@@ -215,6 +215,9 @@ namespace DavidFDev.Audio
             playback.MinDistance = spatialSettings.MinDistance;
             playback.IgnoreListenerPause = asset.IgnoreListenerPause;
             playback.IgnoreListenerVolume = asset.IgnoreListenerVolume;
+            
+            asset.InvokePlayed();
+            
             return playback;
         }
 
@@ -385,6 +388,8 @@ namespace DavidFDev.Audio
             MusicPlayback.Pitch = asset.Pitch;
             MusicPlayback.Priority = asset.Priority;
             MusicPlayback.StereoPan = asset.StereoPan;
+            
+            asset.InvokePlayed();
         }
 
         /// <summary>

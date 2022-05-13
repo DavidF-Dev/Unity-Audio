@@ -247,7 +247,7 @@ namespace DavidFDev.Audio
 #endif
 
             _playingMusicAsset = null;
-            
+
             // Cancel if the new music is the same as the current music
             if (music == _musicPlayback.clip)
             {
@@ -506,7 +506,7 @@ namespace DavidFDev.Audio
         {
             return _playingMusicAsset == music;
         }
-        
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {

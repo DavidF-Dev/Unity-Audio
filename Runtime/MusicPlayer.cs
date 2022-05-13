@@ -22,13 +22,13 @@ namespace DavidFDev.Audio
         [field: SerializeField]
         [PublicAPI] [CanBeNull]
         public AudioClip MusicClip { get; protected set; }
-        
+
         /// <summary>
         ///     Music asset to play if no audio clip is provided.
         /// </summary>
         [field: Tooltip("Music asset to play if no audio clip is provided.")]
         [field: SerializeField]
-        [PublicAPI, CanBeNull]
+        [PublicAPI] [CanBeNull]
         public Music MusicAsset { get; protected set; }
 
         /// <summary>

@@ -35,7 +35,7 @@ namespace DavidFDev.Audio
 
         [Tooltip("Pitch of the audio playback [-3.0 - 3.0].")]
         [SerializeField]
-        [Range(0f, 1f)]
+        [Range(-3f, 3f)]
         private float pitch = 1f;
 
         [Space]
@@ -100,7 +100,7 @@ namespace DavidFDev.Audio
         public float Pitch
         {
             get => pitch;
-            set => pitch = Mathf.Clamp01(value);
+            set => pitch = Mathf.Clamp(value, -3f, 3f);
         }
 
         /// <summary>

@@ -328,6 +328,37 @@ namespace DavidFDev.Audio
             return clips[clipIndex];
         }
 
+        [ContextMenu("Play Sound Effect @ 0,0,0 (Runtime)")]
+        private void PlayDefaultContextMenu()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            Play();
+        }
+
+        [ContextMenu("Play Sound Effect @ Screen Centre (Runtime)")]
+        private void PlayCentreContextMenu()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            Camera cam;
+            if ((cam = Camera.main) == null)
+            {
+                return;
+            }
+
+            var pos = cam.ViewportToWorldPoint(new Vector2(0.5f, 0.5f));
+            pos.z = 0f;
+
+            Play(pos);
+        }
+
         #endregion
     }
 }

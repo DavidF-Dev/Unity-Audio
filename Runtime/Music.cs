@@ -2,10 +2,12 @@
 // Purpose: Create a music asset that can be played at any time.
 // Created by: DavidFDev
 
-using System;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Audio;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace DavidFDev.Audio
 {
@@ -15,6 +17,23 @@ namespace DavidFDev.Audio
     [CreateAssetMenu(menuName = "DavidFDev/Audio/Music")]
     public sealed class Music : ScriptableObject
     {
+        #region Static Methods
+
+#if UNITY_EDITOR
+        [MenuItem("Tools/DavidFDev/Audio/Stop All Music (Runtime)")]
+#endif
+        private static void StopAllMenuItem()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            AudioHelper.StopMusic();
+        }
+
+        #endregion
+
         #region Serialized Fields
 
         [Tooltip("Audio clip to play.")]
@@ -128,9 +147,19 @@ namespace DavidFDev.Audio
 
         #region Unity Methods
 
-#if UNITY_EDITOR
+        private void Reset()
+        {
+            Clip = null;
+            Output = null;
+            Volume = 1f;
+            Pitch = 1f;
+            Priority = 128;
+            StereoPan = 0f;
+        }
+
         private void OnValidate()
         {
+#if UNITY_EDITOR
             if (!Application.isPlaying || !AudioHelper.IsMusicAssetPlaying(this))
             {
                 return;
@@ -142,17 +171,7 @@ namespace DavidFDev.Audio
             AudioHelper.MusicPlayback.Pitch = pitch;
             AudioHelper.MusicPlayback.Priority = priority;
             AudioHelper.MusicPlayback.StereoPan = stereoPan;
-        }
 #endif
-        
-        private void Reset()
-        {
-            Clip = null;
-            Output = null;
-            Volume = 1f;
-            Pitch = 1f;
-            Priority = 128;
-            StereoPan = 0f;
         }
 
         #endregion
@@ -168,6 +187,34 @@ namespace DavidFDev.Audio
         public void Play(float fadeIn = 1f, float fadeOut = 0.75f)
         {
             AudioHelper.PlayMusicAsset(this, fadeIn, fadeOut);
+        }
+
+        [ContextMenu("Play Music (Runtime)")]
+        private void PlayContextMenu()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            Play();
+        }
+
+        [ContextMenu("Stop Music (Runtime)")]
+        private void StopContextMenu()
+        {
+            if (!Application.isPlaying || !AudioHelper.IsMusicAssetPlaying(this))
+            {
+                return;
+            }
+
+            AudioHelper.StopMusic();
+        }
+
+        [ContextMenu("Stop All Music (Runtime)")]
+        private void StopAllContextMenu()
+        {
+            StopAllMenuItem();
         }
 
         #endregion

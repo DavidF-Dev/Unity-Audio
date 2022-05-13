@@ -106,6 +106,40 @@ namespace DavidFDev.Audio
             AudioHelper.StopMusic(FadeOutDuration);
         }
 
+        [ContextMenu("Play Music (Runtime)")]
+        private void PlayContextMenu()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            PlayMusic();
+        }
+
+        [ContextMenu("Stop Music (Runtime)")]
+        private void StopContextMenu()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            if (MusicClip != null)
+            {
+                if (AudioHelper.CurrentMusic != MusicClip)
+                {
+                    return;
+                }
+            }
+            else if (MusicAsset == null || !AudioHelper.IsMusicAssetPlaying(MusicAsset))
+            {
+                return;
+            }
+
+            AudioHelper.StopMusic();
+        }
+
         #endregion
     }
 }

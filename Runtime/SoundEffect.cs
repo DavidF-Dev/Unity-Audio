@@ -328,6 +328,23 @@ namespace DavidFDev.Audio
             return clips[clipIndex];
         }
 
+        [ContextMenu("Play Sound Effect @ Listener (Runtime)")]
+        private void PlayListenerContextMenu()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            var listener = FindObjectOfType<AudioListener>();
+            if (listener == null)
+            {
+                return;
+            }
+
+            Play(listener.transform.position);
+        }
+        
         [ContextMenu("Play Sound Effect @ 0,0,0 (Runtime)")]
         private void PlayDefaultContextMenu()
         {
@@ -358,7 +375,7 @@ namespace DavidFDev.Audio
 
             Play(pos);
         }
-
+        
         #endregion
     }
 }

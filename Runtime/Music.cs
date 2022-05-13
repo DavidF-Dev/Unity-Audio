@@ -200,6 +200,46 @@ namespace DavidFDev.Audio
             Play();
         }
 
+        [ContextMenu("Play Music as Sound Effect (Runtime)")]
+        private void PlayAsSfxContextMenu()
+        {
+            if (!Application.isPlaying || clip == null)
+            {
+                return;
+            }
+
+            Vector3 pos;
+            var listener = FindObjectOfType<AudioListener>();
+            if (listener != null)
+            {
+                pos = listener.transform.position;
+            }
+            else
+            {
+                Camera cam;
+                if ((cam = Camera.main) == null)
+                {
+                    pos = default;
+                }
+                else
+                {
+                    pos = cam.ViewportToWorldPoint(new Vector2(0.5f, 0.5f));
+                    pos.z = 0f;
+                }
+            }
+
+            var pb = AudioHelper.Play(clip, pos, output);
+            if (pb == null)
+            {
+                return;
+            }
+
+            pb.Volume = volume;
+            pb.Pitch = pitch;
+            pb.Priority = priority;
+            pb.StereoPan = stereoPan;
+        }
+
         [ContextMenu("Stop Music (Runtime)")]
         private void StopContextMenu()
         {

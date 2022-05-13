@@ -5,15 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Added Music scriptable object.
+
+## [1.0.4] - 2022-05-13
+- Added playable Music asset type.
 - Added Spatial Audio Settings asset type for 3D spatialisation.
-- Added Playback properties for 3D spatialisation.
-- Added Playback property to ignore the audio listener.
-- Added Playback Finished and Paused event.
+- Added options for 3D spatialisation.
+- Added options to ignore the audio listener.
+- Added Playback 'Finished' and 'Paused' event.
+- Added SoundEffect and Music 'Played' event.
 - Added helper method to convert db to 0-1 range logarithmically.
-- Added editor context/menu actions for controlling playback.
-- Replaced SoundEffect constructor with static method.
-- Renamed Audio.cs to AudioHelper.cs.
+- Added editor context/menu actions for controlling playback during runtime.
+- Renamed Audio class to AudioHelper.
 
 ## [1.0.3] - 2022-02-27
 - Added JetBrain annotations.

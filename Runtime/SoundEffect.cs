@@ -69,7 +69,7 @@ namespace DavidFDev.Audio
 
         [Tooltip("Pan the location of a stereo or mono audio playback [-1.0 (left) - 1.0 (right)].")]
         [SerializeField]
-        [Range(0f, 1f)]
+        [Range(-1f, 1f)]
         private float stereoPan;
 
         [Tooltip("Amount that the audio playback is affected by spatialisation calculations [0.0 (2D) - 1.0 (3D)].")]

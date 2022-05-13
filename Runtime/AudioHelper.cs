@@ -60,6 +60,9 @@ namespace DavidFDev.Audio
         [CanBeNull]
         private static Coroutine _musicFadeOut;
 
+        [CanBeNull]
+        private static Music _playingMusicAsset;
+
         #endregion
 
         #region Static properties
@@ -243,6 +246,8 @@ namespace DavidFDev.Audio
             }
 #endif
 
+            _playingMusicAsset = null;
+            
             // Cancel if the new music is the same as the current music
             if (music == _musicPlayback.clip)
             {
@@ -372,6 +377,7 @@ namespace DavidFDev.Audio
             }
 
             PlayMusic(asset.Clip, fadeIn, fadeOut, asset.Volume);
+            _playingMusicAsset = asset;
             MusicPlayback.Output = asset.Output;
             MusicPlayback.Pitch = asset.Pitch;
             MusicPlayback.Priority = asset.Priority;
@@ -495,6 +501,12 @@ namespace DavidFDev.Audio
             return Mathf.Pow((float)Math.E, volume / 20f);
         }
 
+        [PublicAPI] [Pure]
+        internal static bool IsMusicAssetPlaying([NotNull] Music music)
+        {
+            return _playingMusicAsset == music;
+        }
+        
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {

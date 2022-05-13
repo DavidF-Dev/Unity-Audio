@@ -2,6 +2,7 @@
 // Purpose: Create a music asset that can be played at any time.
 // Created by: DavidFDev
 
+using System;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -127,6 +128,23 @@ namespace DavidFDev.Audio
 
         #region Unity Methods
 
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (!Application.isPlaying || !AudioHelper.IsMusicAssetPlaying(this))
+            {
+                return;
+            }
+
+            // Allow *LIVE* control of the music in the editor
+            AudioHelper.MusicPlayback.Output = output;
+            AudioHelper.MusicPlayback.Volume = volume;
+            AudioHelper.MusicPlayback.Pitch = pitch;
+            AudioHelper.MusicPlayback.Priority = priority;
+            AudioHelper.MusicPlayback.StereoPan = stereoPan;
+        }
+#endif
+        
         private void Reset()
         {
             Clip = null;

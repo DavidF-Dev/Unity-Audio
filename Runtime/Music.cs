@@ -70,6 +70,15 @@ namespace DavidFDev.Audio
         [Range(-1f, 1f)]
         private float stereoPan;
 
+        [Space]
+        [Tooltip("Allows audio to play even though AudioListener.pause is set to true.")]
+        [SerializeField]
+        private bool ignoreListenerPause;
+
+        [Tooltip("Whether to take into account the volume of the audio listener.")]
+        [SerializeField]
+        private bool ignoreListenerVolume;
+
         #endregion
 
         #region Constructors
@@ -144,10 +153,31 @@ namespace DavidFDev.Audio
             set => stereoPan = Mathf.Clamp(value, -1f, 1f);
         }
 
+        /// <summary>
+        ///     Allows audio to play even though AudioListener.pause is set to true.
+        /// </summary>
+        [PublicAPI]
+        public bool IgnoreListenerPause
+        {
+            get => ignoreListenerPause;
+            set => ignoreListenerPause = value;
+        }
+
+        /// <summary>
+        ///     Whether to take into account the volume of the audio listener.
+        /// </summary>
+        [PublicAPI]
+        public bool IgnoreListenerVolume
+        {
+            get => ignoreListenerVolume;
+            set => ignoreListenerVolume = value;
+        }
+
         #endregion
 
         #region Events
 
+        [PublicAPI]
         public event Action Played;
 
         #endregion
@@ -178,6 +208,8 @@ namespace DavidFDev.Audio
             AudioHelper.MusicPlayback.Pitch = pitch;
             AudioHelper.MusicPlayback.Priority = priority;
             AudioHelper.MusicPlayback.StereoPan = stereoPan;
+            AudioHelper.MusicPlayback.IgnoreListenerPause = ignoreListenerPause;
+            AudioHelper.MusicPlayback.IgnoreListenerVolume = ignoreListenerVolume;
 #endif
         }
 

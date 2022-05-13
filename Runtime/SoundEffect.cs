@@ -257,6 +257,7 @@ namespace DavidFDev.Audio
 
         #region Events
 
+        [PublicAPI]
         public event Action Played;
 
         #endregion

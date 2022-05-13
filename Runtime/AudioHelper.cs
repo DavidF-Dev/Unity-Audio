@@ -388,6 +388,8 @@ namespace DavidFDev.Audio
             MusicPlayback.Pitch = asset.Pitch;
             MusicPlayback.Priority = asset.Priority;
             MusicPlayback.StereoPan = asset.StereoPan;
+            MusicPlayback.IgnoreListenerPause = asset.IgnoreListenerPause;
+            MusicPlayback.IgnoreListenerVolume = asset.IgnoreListenerVolume;
             
             asset.InvokePlayed();
         }
@@ -886,6 +888,26 @@ namespace DavidFDev.Audio
             {
                 get => _musicPlayback.timeSamples;
                 set => _musicPlayback.timeSamples = Mathf.Max(0, value);
+            }
+            
+            /// <summary>
+            ///     Allows audio to play even though AudioListener.pause is set to true.
+            /// </summary>
+            [PublicAPI]
+            public static bool IgnoreListenerPause
+            {
+                get => _musicPlayback.ignoreListenerPause;
+                set => _musicPlayback.ignoreListenerPause = value;
+            }
+
+            /// <summary>
+            ///     Whether to take into account the volume of the audio listener.
+            /// </summary>
+            [PublicAPI]
+            public static bool IgnoreListenerVolume
+            {
+                get => _musicPlayback.ignoreListenerVolume;
+                set => _musicPlayback.ignoreListenerVolume = value;
             }
 
             #endregion

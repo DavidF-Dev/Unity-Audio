@@ -28,7 +28,7 @@ namespace DavidFDev.Audio
         [Tooltip("Doppler scale for 3D spatialisation [0.0 - 5.0].")]
         [SerializeField]
         [Range(0f, 5f)]
-        private float dopplerLevel = 1f;
+        private float dopplerLevel;
 
         [Tooltip("Spread angle (in degrees) of a 3D stereo or multichannel sound in speaker space [0.0 - 360.0].")]
         [SerializeField]
@@ -120,7 +120,7 @@ namespace DavidFDev.Audio
 
         private void Reset()
         {
-            dopplerLevel = 1f;
+            dopplerLevel = 0f;
             spread = 0f;
             rolloffMode = SpatialRolloffMode.Logarithmic;
             minDistance = 1f;
